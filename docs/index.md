@@ -1,7 +1,6 @@
----
-layout: page
-title: Biips examples
----
+Biips examples
+===============
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
 This page contains several illustrations of the use of Biips software via R and MATLAB.

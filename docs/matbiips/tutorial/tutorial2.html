@@ -1,0 +1,539 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Matbiips: Tutorial 2</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-24"><meta name="DC.source" content="tutorial2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Matbiips: Tutorial 2</h1><!--introduction--><p>In this tutorial, we consider applying sequential Monte Carlo methods for sensitivity analysis and parameter estimation in a nonlinear non-Gaussian hidden Markov model.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Statistical model</a></li><li><a href="#2">Statistical model in BUGS language</a></li><li><a href="#3">Installation of Matbiips</a></li><li><a href="#4">General settings</a></li><li><a href="#6">Load model and data</a></li><li><a href="#9">Biips Sensitivity analysis with Sequential Monte Carlo</a></li><li><a href="#13">Biips Particle Marginal Metropolis-Hastings</a></li><li><a href="#25">Clear model</a></li></ul></div><h2>Statistical model<a name="1"></a></h2><p>The statistical model is defined as follows.</p><p><img src="tutorial2_eq51166.png" alt="$$ x_1\sim \mathcal N\left (\mu_0, \frac{1}{\lambda_0}\right )$$"></p><p><img src="tutorial2_eq01687.png" alt="$$ y_1\sim \mathcal N\left (h(x_1), \frac{1}{\lambda_y}\right )$$"></p><p>For <img src="tutorial2_eq45863.png" alt="$t=2:t_{max}$"></p><p><img src="tutorial2_eq10710.png" alt="$$ x_t|x_{t-1} \sim \mathcal N\left ( f(x_{t-1},t-1), \frac{1}{\lambda_x}\right )$$"></p><p><img src="tutorial2_eq30045.png" alt="$$ y_t|x_t \sim \mathcal N\left ( h(x_{t}), \frac{1}{\lambda_y}\right )$$"></p><p>where <img src="tutorial2_eq73825.png" alt="$\mathcal N\left (m, S\right )$"> denotes the Gaussian distribution of mean <img src="tutorial2_eq81831.png" alt="$m$"> and covariance matrix <img src="tutorial2_eq68961.png" alt="$S$">, <img src="tutorial2_eq87702.png" alt="$h(x)=x^2/20$">, <img src="tutorial2_eq42999.png" alt="$f(x,t-1)=0.5 x+25 x/(1+x^2)+8 \cos(1.2 (t-1))$">, <img src="tutorial2_eq16411.png" alt="$\mu_0=0$">, <img src="tutorial2_eq90550.png" alt="$\lambda_0 = 5$">, <img src="tutorial2_eq80701.png" alt="$\lambda_x = 0.1$">. The precision of the observation noise <img src="tutorial2_eq66508.png" alt="$\lambda_y$"> is also assumed to be unknown. We will assume a uniform prior for <img src="tutorial2_eq68326.png" alt="$\log(\lambda_y)$">:</p><p><img src="tutorial2_eq53708.png" alt="$$ \log(\lambda_y) \sim Unif(-3,3) $$"></p><h2>Statistical model in BUGS language<a name="2"></a></h2><p>We describe the model in BUGS language in the file <tt>'hmm_1d_nonlin.bug'</tt>:</p><pre class="codeinput">model_file = <span class="string">'hmm_1d_nonlin_param.bug'</span>; <span class="comment">% BUGS model filename</span>
+type(model_file);
+</pre><pre class="codeoutput">
+var x_true[t_max], x[t_max], y[t_max]
+
+data
+{
+  #log_prec_y_true ~ dunif(-3, 3)
+  prec_y_true &lt;- exp(log_prec_y_true)
+  x_true[1] ~ dnorm(mean_x_init, prec_x_init)
+  y[1] ~ dnorm(x_true[1]^2/20, prec_y_true)
+  for (t in 2:t_max)
+  {
+    x_true[t] ~ dnorm(0.5*x_true[t-1]+25*x_true[t-1]/(1+x_true[t-1]^2)+8*cos(1.2*(t-1)), prec_x)
+    y[t] ~ dnorm(x_true[t]^2/20, prec_y_true)
+  }
+}
+
+model
+{
+  log_prec_y ~ dunif(-3, 3)
+  prec_y &lt;- exp(log_prec_y)
+  x[1] ~ dnorm(mean_x_init, prec_x_init)
+  y[1] ~ dnorm(x[1]^2/20, prec_y)
+  for (t in 2:t_max)
+  {
+    x[t] ~ dnorm(0.5*x[t-1]+25*x[t-1]/(1+x[t-1]^2)+8*cos(1.2*(t-1)), prec_x)
+    y[t] ~ dnorm(x[t]^2/20, prec_y)
+  }
+}
+</pre><h2>Installation of Matbiips<a name="3"></a></h2><div><ol><li><a href="https://alea.bordeaux.inria.fr/biips/doku.php?id=download">Download</a> the latest version of Matbiips</li><li>Unzip the archive in some folder</li><li>Add the Matbiips folder to the Matlab search path</li></ol></div><pre class="codeinput">matbiips_path = <span class="string">'../../matbiips'</span>;
+addpath(matbiips_path)
+</pre><h2>General settings<a name="4"></a></h2><pre class="codeinput">set(0, <span class="string">'DefaultAxesFontsize'</span>, 14);
+set(0, <span class="string">'Defaultlinelinewidth'</span>, 2);
+light_blue = [.7, .7, 1];
+</pre><p>Set the random numbers generator seed for reproducibility</p><pre class="codeinput"><span class="keyword">if</span> isoctave() || verLessThan(<span class="string">'matlab'</span>, <span class="string">'7.12'</span>)
+    rand(<span class="string">'state'</span>, 0)
+<span class="keyword">else</span>
+    rng(<span class="string">'default'</span>)
+<span class="keyword">end</span>
+</pre><h2>Load model and data<a name="6"></a></h2><p><b>Model parameters</b></p><pre class="codeinput">t_max = 20;
+mean_x_init = 0;
+prec_x_init = 1;
+prec_x = 10;
+log_prec_y_true = log(1); <span class="comment">% True value used to sample the data</span>
+data = struct(<span class="string">'t_max'</span>, t_max, <span class="string">'prec_x_init'</span>, prec_x_init,<span class="keyword">...</span>
+    <span class="string">'prec_x'</span>, prec_x, <span class="string">'log_prec_y_true'</span>, log_prec_y_true,<span class="keyword">...</span>
+    <span class="string">'mean_x_init'</span>, mean_x_init);
+</pre><p><b>Compile BUGS model and sample data</b></p><pre class="codeinput">sample_data = true; <span class="comment">% Boolean</span>
+model = biips_model(model_file, data, <span class="string">'sample_data'</span>, sample_data); <span class="comment">% Create Biips model and sample data</span>
+data = model.data;
+</pre><pre class="codeoutput">* Parsing model in: hmm_1d_nonlin_param.bug
+* Compiling data graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 280
+  Sampling data
+  Reading data back into data table
+* Compiling model graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 284
+</pre><h2>Biips Sensitivity analysis with Sequential Monte Carlo<a name="9"></a></h2><p>Let now use Biips to provide estimates of the marginal log-likelihood and penalized marginal log-likelihood given various values of the log-precision parameters <img src="tutorial2_eq68326.png" alt="$\log(\lambda_y)$">.</p><p><b>Parameters of the algorithm</b>.</p><pre class="codeinput">n_part = 100; <span class="comment">% Number of particles</span>
+param_names = {<span class="string">'log_prec_y'</span>}; <span class="comment">% Parameter for which we want to study sensitivity</span>
+param_values = {-5:.2:3}; <span class="comment">% Range of values</span>
+</pre><p><b>Run sensitivity analysis with SMC</b></p><pre class="codeinput">out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+</pre><pre class="codeoutput">* Analyzing sensitivity with 100 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 41 iterations in 1.27 s
+</pre><p><b>Plot log-marginal likelihood and penalized log-marginal likelihood</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Log-marginal likelihood'</span>);
+plot(param_values{1}, out_sens.log_marg_like, <span class="string">'.'</span>)
+xlabel(<span class="string">'Parameter log\_prec\_y'</span>)
+ylabel(<span class="string">'Log-marginal likelihood'</span>)
+box <span class="string">off</span>
+
+figure(<span class="string">'name'</span>, <span class="string">'Penalized log-marginal likelihood'</span>);
+plot(param_values{1}, out_sens.log_marg_like_pen, <span class="string">'.'</span>)
+xlabel(<span class="string">'Parameter log\_prec\_y'</span>)
+ylabel(<span class="string">'Penalized log-marginal likelihood'</span>)
+box <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_01.png" alt=""> <img vspace="5" hspace="5" src="tutorial2_02.png" alt=""> <h2>Biips Particle Marginal Metropolis-Hastings<a name="13"></a></h2><p>We now use Biips to run a Particle Marginal Metropolis-Hastings in order to obtain posterior MCMC samples of the parameter and the variables <img src="tutorial2_eq43551.png" alt="$x$">.</p><p><b>Parameters of the PMMH</b>.</p><p><tt>param_names</tt> indicates the parameters to be sampled using a random walk Metroplis-Hastings step. For all the other variables, Biips will use a sequential Monte Carlo as proposal.</p><pre class="codeinput">n_burn = 2000; <span class="comment">% nb of burn-in/adaptation iterations</span>
+n_iter = 2000; <span class="comment">% nb of iterations after burn-in</span>
+thin = 1; <span class="comment">% thinning of MCMC outputs</span>
+n_part = 50; <span class="comment">% nb of particles for the SMC</span>
+var_name = <span class="string">'log_prec_y'</span>;
+param_names = {var_name}; <span class="comment">% name of the variables updated with MCMC (others are updated with SMC)</span>
+latent_names = {<span class="string">'x'</span>}; <span class="comment">% name of the variables updated with SMC and that need to be monitored</span>
+</pre><p><b>Init PMMH</b></p><pre class="codeinput">obj_pmmh = biips_pmmh_init(model, param_names, <span class="string">'inits'</span>, {-2},<span class="keyword">...</span>
+    <span class="string">'latent_names'</span>, latent_names); <span class="comment">% creates a pmmh object</span>
+</pre><pre class="codeoutput">* Initializing PMMH
+</pre><p><b>Run PMMH</b></p><pre class="codeinput">obj_pmmh = biips_pmmh_update(obj_pmmh, n_burn, n_part); <span class="comment">% adaptation and burn-in iterations</span>
+[obj_pmmh, out_pmmh, log_marg_like_pen, log_marg_like, stats_pmmh] = biips_pmmh_samples(obj_pmmh, n_iter, n_part,<span class="keyword">...</span>
+    <span class="string">'thin'</span>, thin); <span class="comment">% samples</span>
+</pre><pre class="codeoutput">* Adapting PMMH with 50 particles
+  |--------------------------------------------------| 100%
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 2000 iterations in 15.14 s
+* Generating 2000 PMMH samples with 50 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 2000 iterations in 14.09 s
+</pre><p><b>Some summary statistics</b></p><pre class="codeinput">summ_pmmh = biips_summary(out_pmmh, <span class="string">'probs'</span>, [.025, .975]);
+</pre><p><b>Compute kernel density estimates</b></p><pre class="codeinput">kde_pmmh = biips_density(out_pmmh);
+</pre><p><b>Posterior mean and credible interval of the parameter</b></p><pre class="codeinput">summ_param = getfield(summ_pmmh, var_name);
+fprintf(<span class="string">'Posterior mean of %s: %.1f\n'</span>, var_name, summ_param.mean);
+fprintf(<span class="string">'95%% credible interval of %s: [%.1f, %.1f]\n'</span>, var_name, <span class="keyword">...</span>
+    summ_param.quant{1}, summ_param.quant{2});
+</pre><pre class="codeoutput">Posterior mean of log_prec_y: -0.4
+95% credible interval of log_prec_y: [-1.2, 0.4]
+</pre><p><b>Trace of MCMC samples for the parameter</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Trace samples parameter'</span>)
+samples_param = getfield(out_pmmh, var_name);
+param_lab = <span class="string">'log\_prec\_y'</span>;
+plot(samples_param, <span class="string">'linewidth'</span>, 1)
+hold <span class="string">on</span>
+plot(0, data.log_prec_y_true, <span class="string">'*g'</span>);
+xlabel(<span class="string">'Iteration'</span>)
+ylabel(param_lab)
+title(param_lab)
+legend({<span class="string">'PMMH samples'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_03.png" alt=""> <p><b>Histogram and kde estimate of the posterior for the parameter</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Histogram posterior parameter'</span>)
+hist(samples_param, 15)
+h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>)
+hold <span class="string">on</span>
+plot(data.log_prec_y_true, 0, <span class="string">'*g'</span>);
+xlabel(param_lab)
+ylabel(<span class="string">'Number of samples'</span>)
+legend({<span class="string">'Posterior samples'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+
+figure(<span class="string">'name'</span>, <span class="string">'PMMH: KDE estimate posterior parameter'</span>)
+kde_param = getfield(kde_pmmh, var_name);
+plot(kde_param.x, kde_param.f);
+hold <span class="string">on</span>
+plot(data.log_prec_y_true, 0, <span class="string">'*g'</span>);
+xlabel(param_lab);
+ylabel(<span class="string">'Posterior density'</span>);
+legend({<span class="string">'Posterior density'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_04.png" alt=""> <img vspace="5" hspace="5" src="tutorial2_05.png" alt=""> <p><b>Posterior mean and quantiles for x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Posterior mean and quantiles'</span>)
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_blue)
+hold <span class="string">on</span>
+plot(1:t_max, x_pmmh_mean, <span class="string">'linewidth'</span>, 3)
+plot(1:t_max, data.x_true, <span class="string">'g'</span>)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'x'</span>)
+legend({<span class="string">'95% credible interval'</span>, <span class="string">'PMMH mean estimate'</span>, <span class="string">'True value'</span>})
+box <span class="string">off</span>
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_06.png" alt=""> <p><b>Trace of MCMC samples for x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Trace samples x'</span>)
+time_index = [5, 10, 15];
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pmmh.x(tk, :), <span class="string">'linewidth'</span>, 1)
+    hold <span class="string">on</span>
+    plot(0, data.x_true(tk), <span class="string">'*g'</span>);
+    xlabel(<span class="string">'Iteration'</span>)
+    ylabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>])
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h = legend({<span class="string">'PMMH samples'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_07.png" alt=""> <p><b>Histogram and kernel density estimate of posteriors of x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Histograms marginal posteriors'</span>)
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pmmh.x(tk, :), -16:.3:-7);
+    h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+    set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>)
+    hold <span class="string">on</span>
+    plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Number of samples'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h = legend({<span class="string">'Posterior samples'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+
+figure(<span class="string">'name'</span>, <span class="string">'PMMH: KDE estimates marginal posteriors'</span>)
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pmmh.x(tk).x, kde_pmmh.x(tk).f);
+    hold <span class="string">on</span>
+    plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Posterior density'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h = legend({<span class="string">'Posterior density'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1]);
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="tutorial2_08.png" alt=""> <img vspace="5" hspace="5" src="tutorial2_09.png" alt=""> <h2>Clear model<a name="25"></a></h2><pre class="codeinput">biips_clear()
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Matbiips: Tutorial 2
+% In this tutorial, we consider applying sequential Monte Carlo methods for
+% sensitivity analysis and parameter estimation in a nonlinear non-Gaussian hidden Markov model.
+
+%% Statistical model
+% The statistical model is defined as follows.
+%
+% $$ x_1\sim \mathcal N\left (\mu_0, \frac{1}{\lambda_0}\right )$$
+%
+% $$ y_1\sim \mathcal N\left (h(x_1), \frac{1}{\lambda_y}\right )$$
+%
+% For $t=2:t_{max}$
+%
+% $$ x_t|x_{t-1} \sim \mathcal N\left ( f(x_{t-1},t-1), \frac{1}{\lambda_x}\right )$$
+%
+% $$ y_t|x_t \sim \mathcal N\left ( h(x_{t}), \frac{1}{\lambda_y}\right )$$
+%
+% where $\mathcal N\left (m, S\right )$ denotes the Gaussian distribution
+% of mean $m$ and covariance matrix $S$, $h(x)=x^2/20$, $f(x,t-1)=0.5
+% x+25 x/(1+x^2)+8 \cos(1.2 (t-1))$, $\mu_0=0$, $\lambda_0 = 5$, $\lambda_x
+% = 0.1$. The precision of the observation noise
+% $\lambda_y$ is also assumed to be unknown. We will assume a uniform prior
+% for $\log(\lambda_y)$:
+%
+% $$ \log(\lambda_y) \sim Unif(-3,3) $$
+
+%% Statistical model in BUGS language
+% We describe the model in BUGS language in the file |'hmm_1d_nonlin.bug'|:
+model_file = 'hmm_1d_nonlin_param.bug'; % BUGS model filename
+type(model_file);
+
+%% Installation of Matbiips
+% # <https://alea.bordeaux.inria.fr/biips/doku.php?id=download Download> the latest version of Matbiips
+% # Unzip the archive in some folder
+% # Add the Matbiips folder to the Matlab search path
+matbiips_path = '../../matbiips';
+addpath(matbiips_path)
+
+%% General settings
+%
+set(0, 'DefaultAxesFontsize', 14);
+set(0, 'Defaultlinelinewidth', 2);
+light_blue = [.7, .7, 1];
+
+%%%
+% Set the random numbers generator seed for reproducibility
+if isoctave() || verLessThan('matlab', '7.12')
+    rand('state', 0)
+else
+    rng('default')
+end
+
+%% Load model and data
+%
+
+%%
+% *Model parameters*
+t_max = 20;
+mean_x_init = 0;
+prec_x_init = 1;
+prec_x = 10;
+log_prec_y_true = log(1); % True value used to sample the data
+data = struct('t_max', t_max, 'prec_x_init', prec_x_init,...
+    'prec_x', prec_x, 'log_prec_y_true', log_prec_y_true,...
+    'mean_x_init', mean_x_init);
+
+%%
+% *Compile BUGS model and sample data*
+sample_data = true; % Boolean
+model = biips_model(model_file, data, 'sample_data', sample_data); % Create Biips model and sample data
+data = model.data;
+
+%% Biips Sensitivity analysis with Sequential Monte Carlo
+% Let now use Biips to provide estimates of the marginal log-likelihood and
+% penalized marginal log-likelihood given various values of the
+% log-precision parameters $\log(\lambda_y)$.
+
+%%%
+% *Parameters of the algorithm*.
+n_part = 100; % Number of particles
+param_names = {'log_prec_y'}; % Parameter for which we want to study sensitivity
+param_values = {-5:.2:3}; % Range of values
+
+%%
+% *Run sensitivity analysis with SMC*
+out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+
+%%
+% *Plot log-marginal likelihood and penalized log-marginal likelihood*
+figure('name', 'Log-marginal likelihood');
+plot(param_values{1}, out_sens.log_marg_like, '.')
+xlabel('Parameter log\_prec\_y')
+ylabel('Log-marginal likelihood')
+box off
+
+figure('name', 'Penalized log-marginal likelihood');
+plot(param_values{1}, out_sens.log_marg_like_pen, '.')
+xlabel('Parameter log\_prec\_y')
+ylabel('Penalized log-marginal likelihood')
+box off
+
+%% Biips Particle Marginal Metropolis-Hastings
+% We now use Biips to run a Particle Marginal Metropolis-Hastings in order
+% to obtain posterior MCMC samples of the parameter and the variables $x$.
+
+%%%
+% *Parameters of the PMMH*.
+% 
+% |param_names| indicates the parameters to be sampled using a random walk
+% Metroplis-Hastings step. For all the other variables, Biips will use a
+% sequential Monte Carlo as proposal.
+n_burn = 2000; % nb of burn-in/adaptation iterations
+n_iter = 2000; % nb of iterations after burn-in
+thin = 1; % thinning of MCMC outputs
+n_part = 50; % nb of particles for the SMC
+var_name = 'log_prec_y';
+param_names = {var_name}; % name of the variables updated with MCMC (others are updated with SMC)
+latent_names = {'x'}; % name of the variables updated with SMC and that need to be monitored
+
+%%
+% *Init PMMH*
+obj_pmmh = biips_pmmh_init(model, param_names, 'inits', {-2},...
+    'latent_names', latent_names); % creates a pmmh object
+
+%%
+% *Run PMMH*
+obj_pmmh = biips_pmmh_update(obj_pmmh, n_burn, n_part); % adaptation and burn-in iterations
+[obj_pmmh, out_pmmh, log_marg_like_pen, log_marg_like, stats_pmmh] = biips_pmmh_samples(obj_pmmh, n_iter, n_part,...
+    'thin', thin); % samples
+
+%%
+% *Some summary statistics*
+summ_pmmh = biips_summary(out_pmmh, 'probs', [.025, .975]);
+
+%%
+% *Compute kernel density estimates*
+kde_pmmh = biips_density(out_pmmh);
+
+%%
+% *Posterior mean and credible interval of the parameter*
+summ_param = getfield(summ_pmmh, var_name);
+fprintf('Posterior mean of %s: %.1f\n', var_name, summ_param.mean);
+fprintf('95%% credible interval of %s: [%.1f, %.1f]\n', var_name, ...
+    summ_param.quant{1}, summ_param.quant{2});
+
+%%
+% *Trace of MCMC samples for the parameter*
+figure('name', 'PMMH: Trace samples parameter')
+samples_param = getfield(out_pmmh, var_name);
+param_lab = 'log\_prec\_y';
+plot(samples_param, 'linewidth', 1)
+hold on
+plot(0, data.log_prec_y_true, '*g');
+xlabel('Iteration')
+ylabel(param_lab)
+title(param_lab)
+legend({'PMMH samples', 'True value'})
+legend boxoff
+box off
+
+%%
+% *Histogram and kde estimate of the posterior for the parameter*
+figure('name', 'PMMH: Histogram posterior parameter')
+hist(samples_param, 15)
+h = findobj(gca, 'Type', 'patch');
+set(h, 'EdgeColor', 'w')
+hold on
+plot(data.log_prec_y_true, 0, '*g');
+xlabel(param_lab)
+ylabel('Number of samples')
+legend({'Posterior samples', 'True value'})
+legend boxoff
+box off
+
+figure('name', 'PMMH: KDE estimate posterior parameter')
+kde_param = getfield(kde_pmmh, var_name);
+plot(kde_param.x, kde_param.f);
+hold on
+plot(data.log_prec_y_true, 0, '*g');
+xlabel(param_lab);
+ylabel('Posterior density');
+legend({'Posterior density', 'True value'})
+legend boxoff
+box off
+
+
+%%
+% *Posterior mean and quantiles for x*
+figure('name', 'PMMH: Posterior mean and quantiles')
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_blue)
+hold on
+plot(1:t_max, x_pmmh_mean, 'linewidth', 3)
+plot(1:t_max, data.x_true, 'g')
+xlabel('Time')
+ylabel('x')
+legend({'95% credible interval', 'PMMH mean estimate', 'True value'})
+box off
+legend boxoff
+
+%%
+% *Trace of MCMC samples for x*
+figure('name', 'PMMH: Trace samples x')
+time_index = [5, 10, 15];
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pmmh.x(tk, :), 'linewidth', 1)
+    hold on
+    plot(0, data.x_true(tk), '*g');
+    xlabel('Iteration')
+    ylabel(['x_{', num2str(tk), '}'])
+    title(['t=', num2str(tk)]);
+    box off
+end
+h = legend({'PMMH samples', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1])
+legend boxoff
+
+%%
+% *Histogram and kernel density estimate of posteriors of x*
+figure('name', 'PMMH: Histograms marginal posteriors')
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pmmh.x(tk, :), -16:.3:-7);
+    h = findobj(gca, 'Type', 'patch');
+    set(h, 'EdgeColor', 'w')
+    hold on
+    plot(data.x_true(tk), 0, '*g');
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Number of samples');
+    title(['t=', num2str(tk)]);
+    box off
+end
+h = legend({'Posterior samples', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1])
+legend boxoff
+
+figure('name', 'PMMH: KDE estimates marginal posteriors')
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pmmh.x(tk).x, kde_pmmh.x(tk).f);
+    hold on
+    plot(data.x_true(tk), 0, '*g');
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Posterior density');
+    title(['t=', num2str(tk)]);
+    box off
+end
+h = legend({'Posterior density', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1]);
+legend boxoff
+
+%% Clear model
+%
+biips_clear()
+
+##### SOURCE END #####
+--></body></html>

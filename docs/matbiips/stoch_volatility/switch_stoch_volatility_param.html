@@ -1,0 +1,838 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Matbiips example: Switching stochastic volatility with estimation of static parameters</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-14"><meta name="DC.source" content="switch_stoch_volatility_param.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Matbiips example: Switching stochastic volatility with estimation of static parameters</h1><!--introduction--><p>In this example, we consider the Markov switching stochastic volatility model with parameter estimation.</p><p>Reference: C.M. Carvalho and H.F. Lopes. Simulation-based sequential analysis of Markov switching stochastic volatility models. Computational Statistics and Data analysis (2007) 4526-4542.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Statistical model</a></li><li><a href="#2">Statistical model in BUGS language</a></li><li><a href="#3">Installation of Matbiips</a></li><li><a href="#4">General settings</a></li><li><a href="#5">Load model and load or simulate data</a></li><li><a href="#9">Biips Particle Marginal Metropolis-Hastings</a></li><li><a href="#25">Clear model</a></li></ul></div><h2>Statistical model<a name="1"></a></h2><p>Let <img src="switch_stoch_volatility_param_eq13352.png" alt="$y_t$"> be the response variable and <img src="switch_stoch_volatility_param_eq61044.png" alt="$x_t$"> the unobserved log-volatility of <img src="switch_stoch_volatility_param_eq13352.png" alt="$y_t$">. The stochastic volatility model is defined as follows for <img src="switch_stoch_volatility_param_eq44689.png" alt="$t\leq t_{max}$"></p><p><img src="switch_stoch_volatility_param_eq01539.png" alt="$$x_t|(x_{t-1},\alpha,\phi,\sigma,c_t) \sim \mathcal N (\alpha_{c_t} + \phi x_{t-1} , \sigma^2)$$"></p><p><img src="switch_stoch_volatility_param_eq91127.png" alt="$$ y_t|x_t \sim \mathcal N (0, \exp(x_t)) $$"></p><p>The regime variables <img src="switch_stoch_volatility_param_eq21725.png" alt="$c_t$"> follow a two-state Markov process with transition probabilities</p><p><img src="switch_stoch_volatility_param_eq95115.png" alt="$$p_{ij}=Pr(c_t=j|c_{t-1}=i)$$"></p><p>We assume the following priors over the parameters <img src="switch_stoch_volatility_param_eq56275.png" alt="$\alpha $, $\phi $, $\sigma $ and $p$">:</p><p><img src="switch_stoch_volatility_param_eq94399.png" alt="$$ \alpha_1=\gamma_1$$"></p><p><img src="switch_stoch_volatility_param_eq47700.png" alt="$$\alpha_2 = \gamma_1+\gamma_2$$"></p><p><img src="switch_stoch_volatility_param_eq92713.png" alt="$$\gamma_1 \sim \mathcal N(0,100)$$"></p><p><img src="switch_stoch_volatility_param_eq34524.png" alt="$$\gamma_2 \sim \mathcal {TN}_{(0,\infty)}(0,100)$$"></p><p><img src="switch_stoch_volatility_param_eq69778.png" alt="$$\phi \sim \mathcal {TN}_{(-1,1)}(0,100) $$"></p><p><img src="switch_stoch_volatility_param_eq51098.png" alt="$$\sigma^2 \sim invGamma(2.001,1) $$"></p><p><img src="switch_stoch_volatility_param_eq91698.png" alt="$$\pi_{11} \sim Beta(10,1)$$"></p><p><img src="switch_stoch_volatility_param_eq14733.png" alt="$$\pi_{22} \sim Beta(10,1)$$"></p><p><img src="switch_stoch_volatility_param_eq23889.png" alt="$\mathcal N(m,\sigma^2)$"> denotes the normal distribution of mean <img src="switch_stoch_volatility_param_eq81831.png" alt="$m$"> and variance <img src="switch_stoch_volatility_param_eq03760.png" alt="$\sigma^2$">. <img src="switch_stoch_volatility_param_eq80507.png" alt="$\mathcal {TN}_{(a,b)}(m,\sigma^2)$"> denotes the truncated normal distribution of mean <img src="switch_stoch_volatility_param_eq81831.png" alt="$m$"> and variance <img src="switch_stoch_volatility_param_eq03760.png" alt="$\sigma^2$">.</p><h2>Statistical model in BUGS language<a name="2"></a></h2><p>Content of the file <tt>'switch_stoch_volatility_param.bug'</tt>:</p><pre class="codeinput">model_file = <span class="string">'switch_stoch_volatility_param.bug'</span>; <span class="comment">% BUGS model filename</span>
+type(model_file);
+</pre><pre class="codeoutput">
+# Switching Stochastic Volatility Model
+# Reference: C.M. Carvalho and H.F. Lopes. Simulation-based sequential analysis of Markov switching
+# stochastic volatility models. Computational Statistics and Data analysis (2007) 4526-4542.
+
+var y[t_max],x[t_max],prec_y[t_max],mu[t_max],mu_true[t_max],alpha[2],gamma[2],c[t_max],c_true[t_max],pi[2,2]
+
+data
+{
+  c_true[1] ~ dcat(pi_true[1,])
+  mu_true[1] &lt;- alpha_true[1] * (c_true[1]==1) + alpha_true[2]*(c_true[1]==2)
+  x_true[1] ~ dnorm(mu_true[1], 1/sigma_true^2) T(-500,500)
+  prec_y_true[1] &lt;- exp(-x_true[1])
+  y[1] ~ dnorm(0, prec_y_true[1])
+  for (t in 2:t_max)
+  {
+    c_true[t] ~ dcat(ifelse(c_true[t-1]==1,pi_true[1,],pi_true[2,]))
+    mu_true[t] &lt;- alpha_true[1] * (c_true[t]==1) + alpha_true[2] * (c_true[t]==2) + phi_true * x_true[t-1];
+    x_true[t] ~ dnorm(mu_true[t], 1/sigma_true^2) T(-500,500)
+    prec_y_true[t] &lt;- exp(-x_true[t])
+    y[t] ~ dnorm(0, prec_y_true[t])
+  }
+}
+
+model
+{
+  gamma[1] ~ dnorm(0, 1/100)
+  gamma[2] ~ dnorm(0, 1/100) T(0,)
+  alpha[1] &lt;- gamma[1]
+  alpha[2] &lt;- gamma[1] + gamma[2]
+  phi ~ dnorm(0, 1/100) T(-1,1)
+  tau ~ dgamma(2.001, 1)
+  sigma &lt;- 1/sqrt(tau)
+  pi[1,1] ~ dbeta(10, 1)
+  pi[1,2] &lt;- 1 - pi[1,1]
+  pi[2,2] ~ dbeta(10, 1)
+  pi[2,1] &lt;- 1 - pi[2,2]
+
+
+  c[1] ~ dcat(pi[1,])
+  mu[1] &lt;- alpha[1] * (c[1]==1) + alpha[2] * (c[1]==2)
+  x[1] ~ dnorm(mu[1], 1/sigma^2) T(-500,500)
+  prec_y[1] &lt;- exp(-x[1])
+  y[1] ~ dnorm(0, prec_y[1])
+  for (t in 2:t_max)
+  {
+    c[t] ~ dcat(ifelse(c[t-1]==1, pi[1,], pi[2,]))
+    mu[t] &lt;- alpha[1] * (c[t]==1) + alpha[2] * (c[t]==2) + phi * x[t-1]
+    x[t] ~ dnorm(mu[t], 1/sigma^2) T(-500,500)
+    prec_y[t] &lt;- exp(-x[t])
+    y[t] ~ dnorm(0, prec_y[t])
+  }
+}
+</pre><h2>Installation of Matbiips<a name="3"></a></h2><div><ol><li><a href="https://alea.bordeaux.inria.fr/biips/doku.php?id=download">Download</a> the latest version of Matbiips</li><li>Unzip the archive in some folder</li><li>Add the Matbiips folder to the Matlab search path</li></ol></div><pre class="codeinput">matbiips_path = <span class="string">'../../matbiips'</span>;
+addpath(matbiips_path)
+</pre><h2>General settings<a name="4"></a></h2><pre class="codeinput">set(0, <span class="string">'DefaultAxesFontsize'</span>, 16);
+set(0, <span class="string">'Defaultlinelinewidth'</span>, 2);
+set(0, <span class="string">'DefaultLineMarkerSize'</span>, 8);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+light_green = [.7, 1, .7];
+light_gray = [.9,.9,.9];
+
+<span class="comment">% Set the random numbers generator seed for reproducibility</span>
+<span class="keyword">if</span> isoctave() || verLessThan(<span class="string">'matlab'</span>, <span class="string">'7.12'</span>)
+    rand(<span class="string">'state'</span>, 0)
+<span class="keyword">else</span>
+    rng(<span class="string">'default'</span>)
+<span class="keyword">end</span>
+</pre><h2>Load model and load or simulate data<a name="5"></a></h2><pre class="codeinput">sample_data = true; <span class="comment">% Simulated data or SP500 data</span>
+t_max = 100;
+
+<span class="keyword">if</span> ~sample_data
+    <span class="comment">% Load the data</span>
+    T = readtable(<span class="string">'SP500.csv'</span>, <span class="string">'delimiter'</span>, <span class="string">';'</span>);
+    y = diff(log(T.Close(end:-1:1)));
+    SP500_date_str = T.Date(end:-1:2);
+
+    ind = 1:t_max;
+    y = y(ind);
+    SP500_date_str = SP500_date_str(ind);
+
+    SP500_date_num = datenum(SP500_date_str);
+<span class="keyword">end</span>
+</pre><p><b>Model parameters</b></p><pre class="codeinput"><span class="keyword">if</span> ~sample_data
+    data = struct(<span class="string">'t_max'</span>, t_max, <span class="string">'y'</span>, y);
+<span class="keyword">else</span>
+    sigma_true = .4;
+    alpha_true = [-2.5; -1];
+    phi_true = .5;
+    pi11 = .9;
+    pi22 = .9;
+    pi_true = [pi11, 1-pi11;
+        1-pi22, pi22];
+
+    data = struct(<span class="string">'t_max'</span>, t_max, <span class="string">'sigma_true'</span>, sigma_true,<span class="keyword">...</span>
+        <span class="string">'alpha_true'</span>, alpha_true, <span class="string">'phi_true'</span>, phi_true, <span class="string">'pi_true'</span>, pi_true);
+<span class="keyword">end</span>
+</pre><p><b>Compile BUGS model and sample data if simulated data</b></p><pre class="codeinput">model = biips_model(model_file, data, <span class="string">'sample_data'</span>, sample_data);
+data = model.data;
+</pre><p>Plot the data</p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Log-returns'</span>)
+<span class="keyword">if</span> sample_data
+    plot(1:t_max, data.y)
+    title(<span class="string">'Observed data'</span>)
+    xlabel(<span class="string">'Time'</span>)
+<span class="keyword">else</span>
+    plot(SP500_date_num, data.y)
+    title(<span class="string">'Observed data: S&amp;P 500'</span>)
+    datetick(<span class="string">'x'</span>, <span class="string">'mmmyyyy'</span>, <span class="string">'keepticks'</span>)
+    xlabel(<span class="string">'Date'</span>)
+<span class="keyword">end</span>
+ylabel(<span class="string">'Log-return'</span>)
+box <span class="string">off</span>
+saveas(gca, <span class="string">'switch_stoch_param_obs'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_obs'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_01.png" alt=""> <h2>Biips Particle Marginal Metropolis-Hastings<a name="9"></a></h2><p>We now use Biips to run a Particle Marginal Metropolis-Hastings in order to obtain posterior MCMC samples of the parameters <img src="switch_stoch_volatility_param_eq87919.png" alt="$\alpha$">, <img src="switch_stoch_volatility_param_eq26509.png" alt="$\phi$">, <img src="switch_stoch_volatility_param_eq24873.png" alt="$\sigma$">, <img src="switch_stoch_volatility_param_eq11731.png" alt="$\pi$">, and of the variables <img src="switch_stoch_volatility_param_eq43551.png" alt="$x$">. Note: We use below a reduced number of MCMC iterations to have reasonable running times. But the obtained samples are obviously very correlated, and the number of iterations should be set to a higher value, and proper convergence tests should be used.</p><p><b>Parameters of the PMMH</b></p><pre class="codeinput">n_burn = 2000; <span class="comment">% nb of burn-in/adaptation iterations</span>
+n_iter = 40000; <span class="comment">% nb of iterations after burn-in</span>
+thin = 10; <span class="comment">% thinning of MCMC outputs</span>
+n_part = 50; <span class="comment">% nb of particles for the SMC</span>
+
+param_names = {<span class="string">'gamma[1]'</span>, <span class="string">'gamma[2]'</span>, <span class="string">'phi'</span>, <span class="string">'tau'</span>, <span class="string">'pi[1,1]'</span>, <span class="string">'pi[2,2]'</span>}; <span class="comment">% name of the variables updated with MCMC (others are updated with SMC)</span>
+latent_names = {<span class="string">'x'</span>, <span class="string">'c'</span>, <span class="string">'alpha[1]'</span>, <span class="string">'alpha[2]'</span>, <span class="string">'sigma'</span>}; <span class="comment">% name of the variables updated with SMC and that need to be monitored</span>
+</pre><p><b>Init PMMH</b></p><pre class="codeinput">inits = {-1, 1, .5, 10, .8, .8};
+obj_pmmh = biips_pmmh_init(model, param_names, <span class="string">'inits'</span>, inits, <span class="string">'latent_names'</span>, latent_names); <span class="comment">% creates a pmmh object</span>
+</pre><pre class="codeoutput">* Initializing PMMH
+</pre><p><b>Run PMMH</b></p><pre class="codeinput">obj_pmmh  = biips_pmmh_update(obj_pmmh, n_burn, n_part); <span class="comment">% adaptation and burn-in iterations</span>
+
+[obj_pmmh, out_pmmh, log_marg_like_pen, log_marg_like] =<span class="keyword">...</span>
+    biips_pmmh_samples(obj_pmmh, n_iter, n_part, <span class="string">'thin'</span>, thin); <span class="comment">% Samples</span>
+</pre><pre class="codeoutput">* Adapting PMMH with 50 particles
+  |--------------------------------------------------| 100%
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 2000 iterations in 149.60 s
+* Generating 4000 PMMH samples with 50 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 40000 iterations in 2815.84 s
+</pre><p><b>Penalized marginal log-likelihood</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Penalized marginal log-likelihood'</span>)
+iter = thin:thin:n_iter;
+plot(iter, log_marg_like_pen, <span class="string">'linewidth'</span>, 1)
+xlabel(<span class="string">'Iteration'</span>)
+ylabel(<span class="string">'Penalized marginal log-likelihood'</span>)
+box <span class="string">off</span>
+saveas(gca, <span class="string">'switch_stoch_param_pmll'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_pmll'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_02.png" alt=""> <p><b>Marginal log-likelihood</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Marginal log-likelihood'</span>)
+iter = thin:thin:n_iter;
+plot(iter, log_marg_like, <span class="string">'linewidth'</span>, 1)
+xlabel(<span class="string">'Iteration'</span>)
+ylabel(<span class="string">'Marginal log-likelihood'</span>)
+box <span class="string">off</span>
+saveas(gca, <span class="string">'switch_stoch_param_mll'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_mll'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_03.png" alt=""> <p><b>Some summary statistics</b></p><pre class="codeinput">summ_pmmh = biips_summary(out_pmmh, <span class="string">'probs'</span>, [.025, .975]);
+</pre><p><b>Compute kernel density estimates</b></p><pre class="codeinput">kde_pmmh = biips_density(out_pmmh);
+</pre><p><b>Compute probability mass function estimates of the discrete marginal variables c[t]</b></p><pre class="codeinput">table_c = biips_table(out_pmmh.c);
+
+param_plot = {<span class="string">'alpha[1]'</span>, <span class="string">'alpha[2]'</span>, <span class="string">'phi'</span>, <span class="string">'sigma'</span>, <span class="string">'pi[1,1]'</span>, <span class="string">'pi[2,2]'</span>};
+param_lab = {<span class="string">'\alpha_1'</span>, <span class="string">'\alpha_2'</span>, <span class="string">'\phi'</span>, <span class="string">'\sigma'</span>, <span class="string">'\pi_{11}'</span>, <span class="string">'\pi_{22}'</span>};
+<span class="keyword">if</span> sample_data
+    param_true = [alpha_true', phi_true, sigma_true, pi11, pi22];
+<span class="keyword">end</span>
+</pre><p><b>Posterior mean, MAP and credible interval of the parameters</b></p><pre class="codeinput">[~, ind_map] = max(log_marg_like_pen);
+[~, ind_mle] = max(log_marg_like);
+<span class="keyword">for</span> i=1:numel(param_plot)
+    summ_param = getfield(summ_pmmh, param_plot{i});
+    out_param = getfield(out_pmmh, param_plot{i});
+    fprintf(<span class="string">'Posterior mean of %s: %.3f\n'</span>, param_plot{i}, summ_param.mean);
+    fprintf(<span class="string">'95%% credible interval of %s: [%.3f, %.3f]\n'</span>,<span class="keyword">...</span>
+        param_plot{i}, summ_param.quant{1}, summ_param.quant{2});
+    fprintf(<span class="string">'MAP of %s: %.3f\n'</span>, param_plot{i}, out_param(ind_map));
+    fprintf(<span class="string">'MLE of %s: %.3f\n'</span>, param_plot{i}, out_param(ind_mle));
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Posterior mean of alpha[1]: -2.979
+95% credible interval of alpha[1]: [-4.934, -1.073]
+MAP of alpha[1]: -4.143
+MLE of alpha[1]: -4.143
+Posterior mean of alpha[2]: -1.431
+95% credible interval of alpha[2]: [-2.755, -0.036]
+MAP of alpha[2]: -2.004
+MLE of alpha[2]: -2.004
+Posterior mean of phi: 0.358
+95% credible interval of phi: [-0.093, 0.786]
+MAP of phi: 0.125
+MLE of phi: 0.125
+Posterior mean of sigma: 0.803
+95% credible interval of sigma: [0.485, 1.202]
+MAP of sigma: 0.803
+MLE of sigma: 0.803
+Posterior mean of pi[1,1]: 0.961
+95% credible interval of pi[1,1]: [0.833, 0.998]
+MAP of pi[1,1]: 0.991
+MLE of pi[1,1]: 0.991
+Posterior mean of pi[2,2]: 0.911
+95% credible interval of pi[2,2]: [0.744, 0.994]
+MAP of pi[2,2]: 0.949
+MLE of pi[2,2]: 0.949
+</pre><p><b>Trace of MCMC samples for the parameters</b></p><pre class="codeinput"><span class="keyword">for</span> k=1:numel(param_plot)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: Trace samples parameter'</span>)
+    samples_param = getfield(out_pmmh, param_plot{k});
+    plot(samples_param, <span class="string">'linewidth'</span>, 1)
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(0, param_true(k), <span class="string">'*g'</span>, <span class="string">'linewidth'</span>, 3, <span class="string">'markersize'</span>, 16);
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'Iteration'</span>, <span class="string">'fontsize'</span>, 24)
+    ylabel(param_lab{k}, <span class="string">'fontsize'</span>, 24)
+    box <span class="string">off</span>
+<span class="comment">%     title(param_lab{k})</span>
+    saveas(gca, [<span class="string">'switch_stoch_param_trace'</span>, num2str(k)], <span class="string">'epsc2'</span>)
+    saveas(gca, [<span class="string">'switch_stoch_param_trace'</span>, num2str(k)], <span class="string">'png'</span>)
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_04.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_05.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_06.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_07.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_08.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_09.png" alt=""> <p><b>Histogram and KDE estimate of the posterior for the parameters</b></p><pre class="codeinput"><span class="keyword">for</span> k=1:numel(param_plot)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: Histogram posterior parameter'</span>)
+    samples_param = getfield(out_pmmh, param_plot{k});
+    hist(samples_param, 15)
+    h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+    set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>, <span class="string">'FaceColor'</span>, <span class="string">'r'</span>)
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(param_true(k), 0, <span class="string">'*g'</span>, <span class="string">'linewidth'</span>, 3, <span class="string">'markersize'</span>, 16);
+    <span class="keyword">end</span>
+    xlabel(param_lab{k}, <span class="string">'fontsize'</span>, 24)
+    ylabel(<span class="string">'Number of samples'</span>, <span class="string">'fontsize'</span>, 24)
+    box <span class="string">off</span>
+<span class="comment">%     title(param_lab{k})</span>
+    saveas(gca, [<span class="string">'switch_stoch_param'</span>, num2str(k)], <span class="string">'epsc2'</span>)
+    saveas(gca, [<span class="string">'switch_stoch_param'</span>, num2str(k)], <span class="string">'png'</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> k=1:numel(param_plot)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: KDE estimate posterior parameter'</span>)
+    kde_param = getfield(kde_pmmh, param_plot{k});
+    plot(kde_param.x, kde_param.f, <span class="string">'r'</span>)
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(param_true(k), 0, <span class="string">'*g'</span>, <span class="string">'linewidth'</span>, 3, <span class="string">'markersize'</span>, 16);
+    <span class="keyword">end</span>
+    xlabel(param_lab{k}, <span class="string">'fontsize'</span>, 24)
+    ylabel(<span class="string">'Posterior density'</span>, <span class="string">'fontsize'</span>, 24)
+    box <span class="string">off</span>
+<span class="comment">%     title(param_lab{k})</span>
+    saveas(gca, [<span class="string">'switch_stoch_param_kde'</span>, num2str(k)], <span class="string">'epsc2'</span>)
+    saveas(gca, [<span class="string">'switch_stoch_param_kde'</span>, num2str(k)], <span class="string">'png'</span>)
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_10.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_11.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_12.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_13.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_14.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_15.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_16.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_17.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_18.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_19.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_20.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_21.png" alt=""> <p><b>Posterior probability of c[t]=2</b></p><pre class="codeinput">prob_c2 = zeros(1,t_max);
+figure(<span class="string">'name'</span>, <span class="string">'PMMH: Posterior probabilities of c[t]=2'</span>)
+hold <span class="string">on</span>
+<span class="keyword">for</span> t=1:t_max
+    <span class="keyword">if</span> data.c_true(t)==2
+        h = fill([t-1,t,t,t-1], [0,0,1,1], 0);
+        set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_green)
+        set(get(get(h,<span class="string">'Annotation'</span>),<span class="string">'LegendInformation'</span>),<span class="string">'IconDisplayStyle'</span>,<span class="string">'off'</span>)
+    <span class="keyword">end</span>
+    ind = find(table_c(t).x == 2);
+    <span class="keyword">if</span> isempty(ind)
+        prob_c2(t) = 1-sum(table_c(t).f);
+    <span class="keyword">else</span>
+        prob_c2(t) = table_c(t).f(ind);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+set(get(get(h,<span class="string">'Annotation'</span>),<span class="string">'LegendInformation'</span>),<span class="string">'IconDisplayStyle'</span>,<span class="string">'on'</span>)
+plot(1:t_max, prob_c2, <span class="string">'r'</span>)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Posterior probability'</span>)
+legend({<span class="string">'True c_t=2 intervals'</span>, <span class="string">'PMMH estimate of Pr(c_t=2)'</span>},<span class="keyword">...</span>
+    <span class="string">'Location'</span>, <span class="string">'NorthWest'</span>, <span class="string">'EdgeColor'</span>, light_gray)
+saveas(gca, <span class="string">'switch_stoch_param_c'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_c'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_22.png" alt=""> <p><b>Posterior mean and quantiles for x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Posterior mean and quantiles'</span>)
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_red)
+hold <span class="string">on</span>
+plot(1:t_max, x_pmmh_mean, <span class="string">'r'</span>, <span class="string">'linewidth'</span>, 3)
+<span class="keyword">if</span> sample_data
+    plot(1:t_max, data.x_true, <span class="string">'g'</span>)
+    legend({<span class="string">'95% credible interval'</span>, <span class="string">'PMMH mean estimate'</span>, <span class="string">'True value'</span>})
+<span class="keyword">else</span>
+    legend({<span class="string">'95% credible interval'</span>, <span class="string">'PMMH mean estimate'</span>})
+<span class="keyword">end</span>
+ylim([-6.5,1])
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-volatility'</span>)
+box <span class="string">off</span>
+legend <span class="string">boxoff</span>
+saveas(gca, <span class="string">'switch_stoch_param_x'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_x'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_23.png" alt=""> <p><b>Trace of MCMC samples for x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Trace samples x'</span>)
+time_index = [5, 10, 15];
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pmmh.x(tk, :), <span class="string">'linewidth'</span>, 1)
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(0, data.x_true(tk), <span class="string">'*g'</span>);
+    <span class="keyword">end</span>
+    ylim([-7,0])
+    xlabel(<span class="string">'Iteration'</span>)
+    ylabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>])
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> sample_data
+    h = legend({<span class="string">'PMMH samples'</span>, <span class="string">'True value'</span>});
+    set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+    legend <span class="string">boxoff</span>
+<span class="keyword">end</span>
+saveas(gca, <span class="string">'switch_stoch_param_x_trace'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_x_trace'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_24.png" alt=""> <p><b>Histogram and kernel density estimate of posteriors of x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Histograms marginal posteriors'</span>)
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pmmh.x(tk, :), 20);
+    h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+    set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>, <span class="string">'FaceColor'</span>, <span class="string">'r'</span>)
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    <span class="keyword">end</span>
+    xlim([-7,0])
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Number of samples'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> sample_data
+    h = legend({<span class="string">'Posterior samples'</span>, <span class="string">'True value'</span>});
+    set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+    legend <span class="string">boxoff</span>
+<span class="keyword">end</span>
+saveas(gca, <span class="string">'switch_stoch_param_x_hist'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_x_hist'</span>, <span class="string">'png'</span>)
+
+figure(<span class="string">'name'</span>, <span class="string">'PMMH: KDE estimates marginal posteriors'</span>)
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pmmh.x(tk).x, kde_pmmh.x(tk).f, <span class="string">'r'</span>);
+    <span class="keyword">if</span> sample_data
+        hold <span class="string">on</span>
+        plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    <span class="keyword">end</span>
+    xlim([-7,0])
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Posterior density'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> sample_data
+    h = legend({<span class="string">'Posterior density'</span>, <span class="string">'True value'</span>});
+    set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+    legend <span class="string">boxoff</span>
+<span class="keyword">end</span>
+saveas(gca, <span class="string">'switch_stoch_param_x_kde'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'switch_stoch_param_x_kde'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_param_25.png" alt=""> <img vspace="5" hspace="5" src="switch_stoch_volatility_param_26.png" alt=""> <h2>Clear model<a name="25"></a></h2><pre class="codeinput">biips_clear()
+
+save <span class="string">switch_stoch_param_workspace.mat</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Matbiips example: Switching stochastic volatility with estimation of static parameters
+% In this example, we consider the Markov switching stochastic volatility
+% model with parameter estimation.
+%
+% Reference: C.M. Carvalho and H.F. Lopes. Simulation-based sequential analysis of Markov switching
+% stochastic volatility models. Computational Statistics and Data analysis (2007) 4526-4542.
+
+%% Statistical model
+%
+% Let $y_t$ be the response variable and $x_t$ the unobserved
+% log-volatility of $y_t$. The stochastic volatility model is defined as follows
+% for $t\leq t_{max}$
+%
+% $$x_t|(x_{t-1},\alpha,\phi,\sigma,c_t) \sim \mathcal N (\alpha_{c_t} + \phi x_{t-1} , \sigma^2)$$
+%
+% $$ y_t|x_t \sim \mathcal N (0, \exp(x_t)) $$
+%
+% The regime variables $c_t$ follow a two-state Markov process with
+% transition probabilities
+%
+% $$p_{ij}=Pr(c_t=j|c_{t-1}=i)$$
+%
+% We assume the following
+% priors over the parameters $\alpha $, $\phi $, $\sigma $ and $p$:
+%
+% $$ \alpha_1=\gamma_1$$
+%
+% $$\alpha_2 = \gamma_1+\gamma_2$$
+%
+% $$\gamma_1 \sim \mathcal N(0,100)$$
+%
+% $$\gamma_2 \sim \mathcal {TN}_{(0,\infty)}(0,100)$$
+%
+% $$\phi \sim \mathcal {TN}_{(-1,1)}(0,100) $$
+%
+% $$\sigma^2 \sim invGamma(2.001,1) $$
+%
+% $$\pi_{11} \sim Beta(10,1)$$
+%
+% $$\pi_{22} \sim Beta(10,1)$$
+%
+% $\mathcal N(m,\sigma^2)$ denotes the normal
+% distribution of mean $m$ and variance $\sigma^2$.
+% $\mathcal {TN}_{(a,b)}(m,\sigma^2)$ denotes the truncated normal
+% distribution of mean $m$ and variance $\sigma^2$.
+
+%% Statistical model in BUGS language
+% Content of the file |'switch_stoch_volatility_param.bug'|:
+model_file = 'switch_stoch_volatility_param.bug'; % BUGS model filename
+type(model_file);
+
+%% Installation of Matbiips
+% # <https://alea.bordeaux.inria.fr/biips/doku.php?id=download Download> the latest version of Matbiips
+% # Unzip the archive in some folder
+% # Add the Matbiips folder to the Matlab search path
+matbiips_path = '../../matbiips';
+addpath(matbiips_path)
+
+%% General settings
+%
+set(0, 'DefaultAxesFontsize', 16);
+set(0, 'Defaultlinelinewidth', 2);
+set(0, 'DefaultLineMarkerSize', 8);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+light_green = [.7, 1, .7];
+light_gray = [.9,.9,.9];
+
+% Set the random numbers generator seed for reproducibility
+if isoctave() || verLessThan('matlab', '7.12')
+    rand('state', 0)
+else
+    rng('default')
+end
+
+%% Load model and load or simulate data
+%
+sample_data = true; % Simulated data or SP500 data
+t_max = 100;
+
+if ~sample_data
+    % Load the data
+    T = readtable('SP500.csv', 'delimiter', ';');
+    y = diff(log(T.Close(end:-1:1)));
+    SP500_date_str = T.Date(end:-1:2);
+    
+    ind = 1:t_max;
+    y = y(ind);
+    SP500_date_str = SP500_date_str(ind);
+    
+    SP500_date_num = datenum(SP500_date_str);
+end
+ 
+
+%%
+% *Model parameters*
+if ~sample_data
+    data = struct('t_max', t_max, 'y', y);
+else
+    sigma_true = .4;
+    alpha_true = [-2.5; -1];
+    phi_true = .5;
+    pi11 = .9;
+    pi22 = .9;
+    pi_true = [pi11, 1-pi11;
+        1-pi22, pi22];
+    
+    data = struct('t_max', t_max, 'sigma_true', sigma_true,...
+        'alpha_true', alpha_true, 'phi_true', phi_true, 'pi_true', pi_true);
+end
+
+%%
+% *Compile BUGS model and sample data if simulated data*
+model = biips_model(model_file, data, 'sample_data', sample_data);
+data = model.data;
+
+%%
+% Plot the data
+figure('name', 'Log-returns')
+if sample_data
+    plot(1:t_max, data.y)
+    title('Observed data')
+    xlabel('Time')
+else
+    plot(SP500_date_num, data.y)
+    title('Observed data: S&P 500')
+    datetick('x', 'mmmyyyy', 'keepticks')
+    xlabel('Date')
+end
+ylabel('Log-return')
+box off
+saveas(gca, 'switch_stoch_param_obs', 'epsc2')
+saveas(gca, 'switch_stoch_param_obs', 'png')
+
+%% Biips Particle Marginal Metropolis-Hastings
+% We now use Biips to run a Particle Marginal Metropolis-Hastings in order
+% to obtain posterior MCMC samples of the parameters $\alpha$, $\phi$,
+% $\sigma$, $\pi$, and of the variables $x$. 
+% Note: We use below a reduced number of MCMC iterations to have reasonable 
+% running times. But the obtained samples are obviously very correlated, 
+% and the number of iterations should be set to a higher value, and proper
+% convergence tests should be used.
+
+%%
+% *Parameters of the PMMH*
+n_burn = 2000; % nb of burn-in/adaptation iterations
+n_iter = 40000; % nb of iterations after burn-in
+thin = 10; % thinning of MCMC outputs
+n_part = 50; % nb of particles for the SMC
+
+param_names = {'gamma[1]', 'gamma[2]', 'phi', 'tau', 'pi[1,1]', 'pi[2,2]'}; % name of the variables updated with MCMC (others are updated with SMC)
+latent_names = {'x', 'c', 'alpha[1]', 'alpha[2]', 'sigma'}; % name of the variables updated with SMC and that need to be monitored
+
+%%
+% *Init PMMH*
+inits = {-1, 1, .5, 10, .8, .8};
+obj_pmmh = biips_pmmh_init(model, param_names, 'inits', inits, 'latent_names', latent_names); % creates a pmmh object
+
+%%
+% *Run PMMH*
+obj_pmmh  = biips_pmmh_update(obj_pmmh, n_burn, n_part); % adaptation and burn-in iterations
+
+[obj_pmmh, out_pmmh, log_marg_like_pen, log_marg_like] =...
+    biips_pmmh_samples(obj_pmmh, n_iter, n_part, 'thin', thin); % Samples
+
+%%
+% *Penalized marginal log-likelihood*
+figure('name', 'PMMH: Penalized marginal log-likelihood')
+iter = thin:thin:n_iter;
+plot(iter, log_marg_like_pen, 'linewidth', 1)
+xlabel('Iteration')
+ylabel('Penalized marginal log-likelihood')
+box off
+saveas(gca, 'switch_stoch_param_pmll', 'epsc2')
+saveas(gca, 'switch_stoch_param_pmll', 'png')
+
+%%
+% *Marginal log-likelihood*
+figure('name', 'PMMH: Marginal log-likelihood')
+iter = thin:thin:n_iter;
+plot(iter, log_marg_like, 'linewidth', 1)
+xlabel('Iteration')
+ylabel('Marginal log-likelihood')
+box off
+saveas(gca, 'switch_stoch_param_mll', 'epsc2')
+saveas(gca, 'switch_stoch_param_mll', 'png')
+
+%%
+% *Some summary statistics*
+summ_pmmh = biips_summary(out_pmmh, 'probs', [.025, .975]);
+
+%%
+% *Compute kernel density estimates*
+kde_pmmh = biips_density(out_pmmh);
+
+%%
+% *Compute probability mass function estimates of the discrete marginal variables c[t]*
+table_c = biips_table(out_pmmh.c);
+
+param_plot = {'alpha[1]', 'alpha[2]', 'phi', 'sigma', 'pi[1,1]', 'pi[2,2]'};
+param_lab = {'\alpha_1', '\alpha_2', '\phi', '\sigma', '\pi_{11}', '\pi_{22}'};
+if sample_data
+    param_true = [alpha_true', phi_true, sigma_true, pi11, pi22];
+end
+
+%%
+% *Posterior mean, MAP and credible interval of the parameters*
+[~, ind_map] = max(log_marg_like_pen);
+[~, ind_mle] = max(log_marg_like);
+for i=1:numel(param_plot)
+    summ_param = getfield(summ_pmmh, param_plot{i});
+    out_param = getfield(out_pmmh, param_plot{i});
+    fprintf('Posterior mean of %s: %.3f\n', param_plot{i}, summ_param.mean);
+    fprintf('95%% credible interval of %s: [%.3f, %.3f]\n',...
+        param_plot{i}, summ_param.quant{1}, summ_param.quant{2});
+    fprintf('MAP of %s: %.3f\n', param_plot{i}, out_param(ind_map));
+    fprintf('MLE of %s: %.3f\n', param_plot{i}, out_param(ind_mle));
+end
+
+%%
+% *Trace of MCMC samples for the parameters*
+for k=1:numel(param_plot)
+    figure('name', 'PMMH: Trace samples parameter')
+    samples_param = getfield(out_pmmh, param_plot{k});
+    plot(samples_param, 'linewidth', 1)
+    if sample_data
+        hold on
+        plot(0, param_true(k), '*g', 'linewidth', 3, 'markersize', 16);
+    end
+    xlabel('Iteration', 'fontsize', 24)
+    ylabel(param_lab{k}, 'fontsize', 24)
+    box off
+%     title(param_lab{k})
+    saveas(gca, ['switch_stoch_param_trace', num2str(k)], 'epsc2')
+    saveas(gca, ['switch_stoch_param_trace', num2str(k)], 'png')
+end
+
+%%
+% *Histogram and KDE estimate of the posterior for the parameters*
+for k=1:numel(param_plot)
+    figure('name', 'PMMH: Histogram posterior parameter')
+    samples_param = getfield(out_pmmh, param_plot{k});
+    hist(samples_param, 15)
+    h = findobj(gca, 'Type', 'patch');
+    set(h, 'EdgeColor', 'w', 'FaceColor', 'r')
+    if sample_data
+        hold on
+        plot(param_true(k), 0, '*g', 'linewidth', 3, 'markersize', 16);
+    end
+    xlabel(param_lab{k}, 'fontsize', 24)
+    ylabel('Number of samples', 'fontsize', 24)
+    box off
+%     title(param_lab{k})
+    saveas(gca, ['switch_stoch_param', num2str(k)], 'epsc2')
+    saveas(gca, ['switch_stoch_param', num2str(k)], 'png')
+end
+
+for k=1:numel(param_plot)
+    figure('name', 'PMMH: KDE estimate posterior parameter')
+    kde_param = getfield(kde_pmmh, param_plot{k});
+    plot(kde_param.x, kde_param.f, 'r')
+    if sample_data
+        hold on
+        plot(param_true(k), 0, '*g', 'linewidth', 3, 'markersize', 16);
+    end
+    xlabel(param_lab{k}, 'fontsize', 24)
+    ylabel('Posterior density', 'fontsize', 24)
+    box off
+%     title(param_lab{k})
+    saveas(gca, ['switch_stoch_param_kde', num2str(k)], 'epsc2')
+    saveas(gca, ['switch_stoch_param_kde', num2str(k)], 'png')
+end
+
+%% 
+% *Posterior probability of c[t]=2*
+prob_c2 = zeros(1,t_max);
+figure('name', 'PMMH: Posterior probabilities of c[t]=2')
+hold on
+for t=1:t_max
+    if data.c_true(t)==2
+        h = fill([t-1,t,t,t-1], [0,0,1,1], 0);
+        set(h, 'edgecolor', 'none', 'facecolor', light_green)
+        set(get(get(h,'Annotation'),'LegendInformation'),'IconDisplayStyle','off')
+    end
+    ind = find(table_c(t).x == 2);
+    if isempty(ind)
+        prob_c2(t) = 1-sum(table_c(t).f);
+    else
+        prob_c2(t) = table_c(t).f(ind);
+    end
+end
+set(get(get(h,'Annotation'),'LegendInformation'),'IconDisplayStyle','on')
+plot(1:t_max, prob_c2, 'r')
+xlabel('Time')
+ylabel('Posterior probability')
+legend({'True c_t=2 intervals', 'PMMH estimate of Pr(c_t=2)'},...
+    'Location', 'NorthWest', 'EdgeColor', light_gray)
+saveas(gca, 'switch_stoch_param_c', 'epsc2')
+saveas(gca, 'switch_stoch_param_c', 'png')
+
+%%
+% *Posterior mean and quantiles for x*
+figure('name', 'PMMH: Posterior mean and quantiles')
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_red)
+hold on
+plot(1:t_max, x_pmmh_mean, 'r', 'linewidth', 3)
+if sample_data
+    plot(1:t_max, data.x_true, 'g')
+    legend({'95% credible interval', 'PMMH mean estimate', 'True value'})
+else
+    legend({'95% credible interval', 'PMMH mean estimate'})
+end
+ylim([-6.5,1])
+xlabel('Time')
+ylabel('Log-volatility')
+box off
+legend boxoff
+saveas(gca, 'switch_stoch_param_x', 'epsc2')
+saveas(gca, 'switch_stoch_param_x', 'png')
+
+%%
+% *Trace of MCMC samples for x*
+figure('name', 'PMMH: Trace samples x')
+time_index = [5, 10, 15];
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pmmh.x(tk, :), 'linewidth', 1)
+    if sample_data
+        hold on
+        plot(0, data.x_true(tk), '*g');
+    end
+    ylim([-7,0])
+    xlabel('Iteration')
+    ylabel(['x_{', num2str(tk), '}'])
+    title(['t=', num2str(tk)]);
+    box off
+end
+if sample_data
+    h = legend({'PMMH samples', 'True value'});
+    set(h, 'position', [0.7, 0.25, .1, .1])
+    legend boxoff
+end
+saveas(gca, 'switch_stoch_param_x_trace', 'epsc2')
+saveas(gca, 'switch_stoch_param_x_trace', 'png')
+
+%%
+% *Histogram and kernel density estimate of posteriors of x*
+figure('name', 'PMMH: Histograms marginal posteriors')
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pmmh.x(tk, :), 20);
+    h = findobj(gca, 'Type', 'patch');
+    set(h, 'EdgeColor', 'w', 'FaceColor', 'r')
+    if sample_data
+        hold on
+        plot(data.x_true(tk), 0, '*g');
+    end
+    xlim([-7,0])
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Number of samples');
+    title(['t=', num2str(tk)]);
+    box off
+end
+if sample_data
+    h = legend({'Posterior samples', 'True value'});
+    set(h, 'position', [0.7, 0.25, .1, .1])
+    legend boxoff
+end
+saveas(gca, 'switch_stoch_param_x_hist', 'epsc2')
+saveas(gca, 'switch_stoch_param_x_hist', 'png')
+
+figure('name', 'PMMH: KDE estimates marginal posteriors')
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pmmh.x(tk).x, kde_pmmh.x(tk).f, 'r');
+    if sample_data
+        hold on
+        plot(data.x_true(tk), 0, '*g');
+    end
+    xlim([-7,0])
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Posterior density');
+    title(['t=', num2str(tk)]);
+    box off
+end
+if sample_data
+    h = legend({'Posterior density', 'True value'});
+    set(h, 'position', [0.7, 0.25, .1, .1])
+    legend boxoff
+end
+saveas(gca, 'switch_stoch_param_x_kde', 'epsc2')
+saveas(gca, 'switch_stoch_param_x_kde', 'png')
+
+%% Clear model
+%
+biips_clear()
+
+save switch_stoch_param_workspace.mat
+##### SOURCE END #####
+--></body></html>

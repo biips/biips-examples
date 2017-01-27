@@ -1,0 +1,662 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Matbiips example: Switching stochastic volatility</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-24"><meta name="DC.source" content="switch_stoch_volatility.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Matbiips example: Switching stochastic volatility</h1><!--introduction--><p>In this example, we consider the Markov switching stochastic volatility model.</p><p>Reference: C.M. Carvalho and H.F. Lopes. Simulation-based sequential analysis of Markov switching stochastic volatility models. Computational Statistics and Data analysis (2007) 4526-4542.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Statistical model</a></li><li><a href="#2">Statistical model in BUGS language</a></li><li><a href="#3">Installation of Matbiips</a></li><li><a href="#4">General settings</a></li><li><a href="#5">Load model and data</a></li><li><a href="#9">Biips Sequential Monte Carlo</a></li><li><a href="#18">Biips Particle Independent Metropolis-Hastings</a></li><li><a href="#26">Biips Sensitivity analysis</a></li><li><a href="#30">Clear model</a></li></ul></div><h2>Statistical model<a name="1"></a></h2><p>Let <img src="switch_stoch_volatility_eq13352.png" alt="$y_t$"> be the response variable and <img src="switch_stoch_volatility_eq61044.png" alt="$x_t$"> the unobserved log-volatility of <img src="switch_stoch_volatility_eq13352.png" alt="$y_t$">. The stochastic volatility model is defined as follows for <img src="switch_stoch_volatility_eq44689.png" alt="$t\leq t_{max}$"></p><p><img src="switch_stoch_volatility_eq01539.png" alt="$$x_t|(x_{t-1},\alpha,\phi,\sigma,c_t) \sim \mathcal N (\alpha_{c_t} + \phi x_{t-1} , \sigma^2)$$"></p><p><img src="switch_stoch_volatility_eq91127.png" alt="$$ y_t|x_t \sim \mathcal N (0, \exp(x_t)) $$"></p><p>The regime variables <img src="switch_stoch_volatility_eq21725.png" alt="$c_t$"> follow a two-state Markov process with transition probabilities</p><p><img src="switch_stoch_volatility_eq95115.png" alt="$$p_{ij}=Pr(c_t=j|c_{t-1}=i)$$"></p><p><img src="switch_stoch_volatility_eq23889.png" alt="$\mathcal N(m,\sigma^2)$"> denotes the normal distribution of mean <img src="switch_stoch_volatility_eq81831.png" alt="$m$"> and variance <img src="switch_stoch_volatility_eq03760.png" alt="$\sigma^2$">.</p><h2>Statistical model in BUGS language<a name="2"></a></h2><p>Content of the file <tt>'switch_stoch_volatility.bug'</tt>:</p><pre class="codeinput">model_file = <span class="string">'switch_stoch_volatility.bug'</span>; <span class="comment">% BUGS model filename</span>
+type(model_file);
+</pre><pre class="codeoutput">
+var y[t_max],x[t_max],mu[t_max],mu_true[t_max],c[t_max],c_true[t_max]
+data
+{
+  c_true[1] ~ dcat(pi[c0,])
+  mu_true[1] &lt;- alpha[1] * (c_true[1]==1) + alpha[2]*(c_true[1]==2) + phi*x0
+  x_true[1] ~ dnorm(mu_true[1], 1/sigma^2)
+  y[1] ~ dnorm(0, exp(-x_true[1]))
+  for (t in 2:t_max)
+  {
+    c_true[t] ~ dcat(ifelse(c_true[t-1]==1,pi[1,],pi[2,]))
+    mu_true[t] &lt;- alpha[1]*(c_true[t]==1) + alpha[2]*(c_true[t]==2) + phi*x_true[t-1];
+    x_true[t] ~ dnorm(mu_true[t], 1/sigma^2)
+    y[t] ~ dnorm(0, exp(-x_true[t]))
+  }
+}
+
+model
+{
+  c[1] ~ dcat(pi[c0,])
+  mu[1] &lt;- alpha[1] * (c[1]==1) + alpha[2]*(c[1]==2)+ phi*x0
+  x[1] ~ dnorm(mu[1], 1/sigma^2)
+  y[1] ~ dnorm(0, exp(-x[1]))
+  for (t in 2:t_max)
+  {
+    c[t] ~ dcat(ifelse(c[t-1]==1, pi[1,], pi[2,]))
+    mu[t] &lt;- alpha[1] * (c[t]==1) + alpha[2]*(c[t]==2) + phi*x[t-1]
+    x[t] ~ dnorm(mu[t], 1/sigma^2)
+    y[t] ~ dnorm(0, exp(-x[t]))
+  }
+}
+</pre><h2>Installation of Matbiips<a name="3"></a></h2><div><ol><li><a href="https://alea.bordeaux.inria.fr/biips/doku.php?id=download">Download</a> the latest version of Matbiips</li><li>Unzip the archive in some folder</li><li>Add the Matbiips folder to the Matlab search path</li></ol></div><pre class="codeinput">matbiips_path = <span class="string">'../../matbiips'</span>;
+addpath(matbiips_path)
+</pre><h2>General settings<a name="4"></a></h2><pre class="codeinput">set(0, <span class="string">'DefaultAxesFontsize'</span>, 16);
+set(0, <span class="string">'Defaultlinelinewidth'</span>, 2);
+set(0, <span class="string">'DefaultLineMarkerSize'</span>, 8);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+
+<span class="comment">% Set the random numbers generator seed for reproducibility</span>
+<span class="keyword">if</span> isoctave() || verLessThan(<span class="string">'matlab'</span>, <span class="string">'7.12'</span>)
+    rand(<span class="string">'state'</span>, 0)
+<span class="keyword">else</span>
+    rng(<span class="string">'default'</span>)
+<span class="keyword">end</span>
+</pre><h2>Load model and data<a name="5"></a></h2><p><b>Model parameters</b></p><pre class="codeinput">t_max = 100;
+sigma = .4; alpha = [-2.5; -1]; phi = .5; c0 = 1; x0 = 0;
+pi = [.9, .1; .1, .9];
+data = struct(<span class="string">'t_max'</span>, t_max, <span class="string">'sigma'</span>, sigma,<span class="keyword">...</span>
+    <span class="string">'alpha'</span>, alpha, <span class="string">'phi'</span>, phi, <span class="string">'pi'</span>, pi, <span class="string">'c0'</span>, c0, <span class="string">'x0'</span>, x0);
+</pre><p><b>Parse and compile BUGS model, and sample data</b></p><pre class="codeinput">model = biips_model(model_file, data, <span class="string">'sample_data'</span>, true);
+data = model.data;
+</pre><pre class="codeoutput">* Parsing model in: switch_stoch_volatility.bug
+* Compiling data graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 1215
+  Sampling data
+  Reading data back into data table
+* Compiling model graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 1218
+</pre><p>Plot the data</p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Log-returns'</span>)
+plot(1:t_max, data.y)
+title(<span class="string">'Observed data'</span>)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-return'</span>)
+box <span class="string">off</span>
+saveas(gca, <span class="string">'volatility_obs'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_obs'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_01.png" alt=""> <h2>Biips Sequential Monte Carlo<a name="9"></a></h2><p><b>Run SMC</b></p><pre class="codeinput">n_part = 5000; <span class="comment">% Number of particles</span>
+variables = {<span class="string">'x'</span>}; <span class="comment">% Variables to be monitored</span>
+out_smc = biips_smc_samples(model, variables, n_part);
+</pre><pre class="codeoutput">* Assigning node samplers
+* Running SMC forward sampler with 5000 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 100 iterations in 9.91 s
+</pre><p><b>Diagnosis of the algorithm</b>.</p><pre class="codeinput">diag_smc = biips_diagnosis(out_smc);
+</pre><pre class="codeoutput">* Diagnosis of variable: x[1:100]
+  Filtering: GOOD
+  Smoothing: GOOD
+</pre><p><b>Plot Smoothing ESS</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'SMC: SESS'</span>)
+semilogy(1:t_max, out_smc.x.s.ess)
+hold <span class="string">on</span>
+plot(1:t_max, 30*ones(t_max,1), <span class="string">'--k'</span>)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'SESS'</span>)
+box <span class="string">off</span>
+saveas(gca, <span class="string">'volatility_ess'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_ess'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_02.png" alt=""> <p><b>Plot weighted particles</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'SMC: Particles (smoothing)'</span>)
+hold <span class="string">on</span>
+<span class="keyword">for</span> t=1:t_max
+    val = unique(out_smc.x.s.values(t,:));
+
+    weight = arrayfun(@(x) sum(out_smc.x.s.weights(t, out_smc.x.s.values(t,:) == x)), val);
+
+    scatter(t*ones(size(val)), val, min(50, .5*n_part*weight), <span class="string">'r'</span>,<span class="keyword">...</span>
+        <span class="string">'markerfacecolor'</span>, <span class="string">'r'</span>)
+<span class="keyword">end</span>
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-volatility'</span>)
+saveas(gca, <span class="string">'volatility_particles_s'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_particles_s'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_03.png" alt=""> <p><b>Summary statistics</b></p><pre class="codeinput">summ_smc = biips_summary(out_smc, <span class="string">'probs'</span>, [.025, .975]);
+</pre><p><b>Plot Filtering estimates</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'SMC: Filtering estimates'</span>)
+x_f_mean = summ_smc.x.f.mean;
+x_f_quant = summ_smc.x.f.quant;
+h = fill([1:t_max, t_max:-1:1], [x_f_quant{1}; flipud(x_f_quant{2})], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_blue)
+hold <span class="string">on</span>
+plot(1:t_max, x_f_mean, <span class="string">'linewidth'</span>, 3)
+plot(1:t_max, data.x_true, <span class="string">'g'</span>)
+ylim([-6.5, 1])
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-volatility'</span>)
+legend({<span class="string">'95% credible interval'</span>, <span class="string">'Filtering mean estimate'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+saveas(gca, <span class="string">'volatility_f'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_f'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_04.png" alt=""> <p><b>Plot Smoothing estimates</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'SMC: Smoothing estimates'</span>)
+x_s_mean = summ_smc.x.s.mean;
+x_s_quant = summ_smc.x.s.quant;
+h = fill([1:t_max, t_max:-1:1], [x_s_quant{1}; flipud(x_s_quant{2})], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_red)
+hold <span class="string">on</span>
+plot(1:t_max, x_s_mean, <span class="string">'r'</span>, <span class="string">'linewidth'</span>, 3)
+plot(1:t_max, data.x_true, <span class="string">'g'</span>)
+ylim([-6.5, 1])
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-volatility'</span>)
+legend({<span class="string">'95% credible interval'</span>, <span class="string">'Smoothing mean estimate'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+saveas(gca, <span class="string">'volatility_s'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_s'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_05.png" alt=""> <p><b>Marginal filtering and smoothing densities</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'SMC: Marginal posteriors'</span>)
+kde_smc = biips_density(out_smc);
+time_index = [5, 10, 15];
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_smc.x.f(tk).x, kde_smc.x.f(tk).f);
+    hold <span class="string">on</span>
+    plot(kde_smc.x.s(tk).x, kde_smc.x.s(tk).f, <span class="string">'r'</span>);
+    plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    xlim([-7,0])
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Posterior density'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h =legend({<span class="string">'Filtering density'</span>, <span class="string">'Smoothing density'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>,[0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+saveas(gca, <span class="string">'volatility_kde'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_kde'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_06.png" alt=""> <h2>Biips Particle Independent Metropolis-Hastings<a name="18"></a></h2><p><b>Parameters of the PIMH</b></p><pre class="codeinput">n_burn = 2000;
+n_iter = 10000;
+thin = 1;
+n_part = 50;
+</pre><p><b>Run PIMH</b></p><pre class="codeinput">obj_pimh = biips_pimh_init(model, variables);
+obj_pimh = biips_pimh_update(obj_pimh, n_burn, n_part); <span class="comment">% burn-in iterations</span>
+[obj_pimh, out_pimh, log_marg_like_pimh] = biips_pimh_samples(obj_pimh,<span class="keyword">...</span>
+    n_iter, n_part, <span class="string">'thin'</span>, thin);
+</pre><pre class="codeoutput">* Initializing PIMH
+* Updating PIMH with 50 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 2000 iterations in 139.74 s
+* Generating PIMH samples with 50 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 10000 iterations in 733.44 s
+</pre><p><b>Some summary statistics</b></p><pre class="codeinput">summ_pimh = biips_summary(out_pimh, <span class="string">'probs'</span>, [.025, .975]);
+</pre><p><b>Posterior mean and quantiles</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PIMH: Posterior mean and quantiles'</span>)
+x_pimh_mean = summ_pimh.x.mean;
+x_pimh_quant = summ_pimh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pimh_quant{1}; flipud(x_pimh_quant{2})], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_red)
+hold <span class="string">on</span>
+plot(1:t_max, x_pimh_mean, <span class="string">'r'</span>, <span class="string">'linewidth'</span>, 3)
+plot(1:t_max, data.x_true, <span class="string">'g'</span>)
+ylim([-6.5, 1])
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Log-volatility'</span>)
+legend({<span class="string">'95% credible interval'</span>, <span class="string">'PIMH mean estimate'</span>, <span class="string">'True value'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+saveas(gca, <span class="string">'volatility_pimh_s'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_pimh_s'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_07.png" alt=""> <p><b>Trace of MCMC samples</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PIMH: Trace samples'</span>)
+time_index = [5, 10, 15];
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pimh.x(tk, :), <span class="string">'linewidth'</span>, 1)
+    hold <span class="string">on</span>
+    plot(0, data.x_true(tk), <span class="string">'*g'</span>);
+    xlabel(<span class="string">'Iteration'</span>)
+    ylabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>])
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h = legend({<span class="string">'PIMH samples'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_08.png" alt=""> <p><b>Histograms of posteriors</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PIMH: Histograms marginal posteriors'</span>)
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pimh.x(tk, :), 20);
+    h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+    set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>, <span class="string">'FaceColor'</span>, <span class="string">'r'</span>)
+    hold <span class="string">on</span>
+    plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Number of samples'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h =legend({<span class="string">'PIMH samples'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_09.png" alt=""> <p><b>Kernel density estimates of posteriors</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PIMH: KDE estimates marginal posteriors'</span>)
+kde_pimh = biips_density(out_pimh);
+<span class="keyword">for</span> k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pimh.x(tk).x, kde_pimh.x(tk).f, <span class="string">'r'</span>);
+    hold <span class="string">on</span>
+    plot(data.x_true(tk), 0, <span class="string">'*g'</span>);
+    xlim([-7,0])
+    xlabel([<span class="string">'x_{'</span>, num2str(tk), <span class="string">'}'</span>]);
+    ylabel(<span class="string">'Posterior density'</span>);
+    title([<span class="string">'t='</span>, num2str(tk)]);
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+h = legend({<span class="string">'Posterior density'</span>, <span class="string">'True value'</span>});
+set(h, <span class="string">'position'</span>, [0.7, 0.25, .1, .1])
+legend <span class="string">boxoff</span>
+saveas(gca, <span class="string">'volatility_pimh_kde'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_pimh_kde'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_10.png" alt=""> <h2>Biips Sensitivity analysis<a name="26"></a></h2><p>We want to study sensitivity to the values of the parameter <img src="switch_stoch_volatility_eq87919.png" alt="$\alpha$"></p><p><b>Parameters of the algorithm</b></p><pre class="codeinput">n_part = 50; <span class="comment">% Number of particles</span>
+param_names = {<span class="string">'alpha'</span>}; <span class="comment">% Parameter for which we want to study sensitivity</span>
+range = -5:.2:2; <span class="comment">% Range of values for one component</span>
+[A, B] = meshgrid(range, range); <span class="comment">% Grid of values for two components</span>
+param_values = {[A(:), B(:)]'};
+</pre><p><b>Run sensitivity analysis with SMC</b></p><pre class="codeinput">out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+</pre><pre class="codeoutput">* Analyzing sensitivity with 50 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 1296 iterations in 87.20 s
+</pre><p><b>Plot log-marginal likelihood and penalized log-marginal likelihood</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Sensitivity: Log-likelihood'</span>)
+surf(A, B, reshape(out_sens.log_marg_like, size(A)))
+view(2); colormap(hot); shading <span class="string">interp</span>
+caxis([-40, max(out_sens.log_marg_like(:))])
+colorbar <span class="string">box</span> <span class="string">off</span>
+box <span class="string">off</span>
+xlim([-5, 2])
+xlabel(<span class="string">'\alpha_1'</span>, <span class="string">'fontsize'</span>, 20)
+ylabel(<span class="string">'\alpha_2'</span>, <span class="string">'fontsize'</span>, 20)
+saveas(gca, <span class="string">'volatility_sensitivity'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'volatility_sensitivity'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="switch_stoch_volatility_11.png" alt=""> <h2>Clear model<a name="30"></a></h2><pre class="codeinput">biips_clear()
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Matbiips example: Switching stochastic volatility
+% In this example, we consider the Markov switching stochastic volatility model.
+%
+% Reference: C.M. Carvalho and H.F. Lopes. Simulation-based sequential analysis of Markov switching
+% stochastic volatility models. Computational Statistics and Data analysis (2007) 4526-4542.
+
+%% Statistical model
+%
+% Let $y_t$ be the response variable and $x_t$ the unobserved
+% log-volatility of $y_t$. The stochastic volatility model is defined as follows
+% for $t\leq t_{max}$
+%
+% $$x_t|(x_{t-1},\alpha,\phi,\sigma,c_t) \sim \mathcal N (\alpha_{c_t} + \phi x_{t-1} , \sigma^2)$$
+%
+% $$ y_t|x_t \sim \mathcal N (0, \exp(x_t)) $$
+%
+% The regime variables $c_t$ follow a two-state Markov process with
+% transition probabilities
+%
+% $$p_{ij}=Pr(c_t=j|c_{t-1}=i)$$
+%
+% $\mathcal N(m,\sigma^2)$ denotes the normal
+% distribution of mean $m$ and variance $\sigma^2$.
+
+
+%% Statistical model in BUGS language
+% Content of the file |'switch_stoch_volatility.bug'|:
+model_file = 'switch_stoch_volatility.bug'; % BUGS model filename
+type(model_file);
+
+
+%% Installation of Matbiips
+% # <https://alea.bordeaux.inria.fr/biips/doku.php?id=download Download> the latest version of Matbiips
+% # Unzip the archive in some folder
+% # Add the Matbiips folder to the Matlab search path
+matbiips_path = '../../matbiips';
+addpath(matbiips_path)
+
+%% General settings
+%
+set(0, 'DefaultAxesFontsize', 16);
+set(0, 'Defaultlinelinewidth', 2);
+set(0, 'DefaultLineMarkerSize', 8);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+
+% Set the random numbers generator seed for reproducibility
+if isoctave() || verLessThan('matlab', '7.12')
+    rand('state', 0)
+else
+    rng('default')
+end
+
+%% Load model and data
+%
+
+%%
+% *Model parameters*
+t_max = 100;
+sigma = .4; alpha = [-2.5; -1]; phi = .5; c0 = 1; x0 = 0;
+pi = [.9, .1; .1, .9];
+data = struct('t_max', t_max, 'sigma', sigma,...
+    'alpha', alpha, 'phi', phi, 'pi', pi, 'c0', c0, 'x0', x0);
+
+%%
+% *Parse and compile BUGS model, and sample data*
+model = biips_model(model_file, data, 'sample_data', true);
+data = model.data;
+
+%%
+% Plot the data
+figure('name', 'Log-returns')
+plot(1:t_max, data.y)
+title('Observed data')
+xlabel('Time')
+ylabel('Log-return')
+box off
+saveas(gca, 'volatility_obs', 'epsc2')
+saveas(gca, 'volatility_obs', 'png')
+
+%% Biips Sequential Monte Carlo
+%
+
+%%
+% *Run SMC*
+n_part = 5000; % Number of particles
+variables = {'x'}; % Variables to be monitored
+out_smc = biips_smc_samples(model, variables, n_part);
+
+%%
+% *Diagnosis of the algorithm*.
+diag_smc = biips_diagnosis(out_smc);
+
+%%
+% *Plot Smoothing ESS*
+figure('name', 'SMC: SESS')
+semilogy(1:t_max, out_smc.x.s.ess)
+hold on
+plot(1:t_max, 30*ones(t_max,1), 'REPLACE_WITH_DASH_DASHk')
+xlabel('Time')
+ylabel('SESS')
+box off
+saveas(gca, 'volatility_ess', 'epsc2')
+saveas(gca, 'volatility_ess', 'png')
+
+%%
+% *Plot weighted particles*
+figure('name', 'SMC: Particles (smoothing)')
+hold on
+for t=1:t_max
+    val = unique(out_smc.x.s.values(t,:));
+    
+    weight = arrayfun(@(x) sum(out_smc.x.s.weights(t, out_smc.x.s.values(t,:) == x)), val);
+    
+    scatter(t*ones(size(val)), val, min(50, .5*n_part*weight), 'r',...
+        'markerfacecolor', 'r')
+end
+xlabel('Time')
+ylabel('Log-volatility')
+saveas(gca, 'volatility_particles_s', 'epsc2')
+saveas(gca, 'volatility_particles_s', 'png')
+
+%%
+% *Summary statistics*
+summ_smc = biips_summary(out_smc, 'probs', [.025, .975]);
+
+%%
+% *Plot Filtering estimates*
+figure('name', 'SMC: Filtering estimates')
+x_f_mean = summ_smc.x.f.mean;
+x_f_quant = summ_smc.x.f.quant;
+h = fill([1:t_max, t_max:-1:1], [x_f_quant{1}; flipud(x_f_quant{2})], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_blue)
+hold on
+plot(1:t_max, x_f_mean, 'linewidth', 3)
+plot(1:t_max, data.x_true, 'g')
+ylim([-6.5, 1])
+xlabel('Time')
+ylabel('Log-volatility')
+legend({'95% credible interval', 'Filtering mean estimate', 'True value'})
+legend boxoff
+box off
+saveas(gca, 'volatility_f', 'epsc2')
+saveas(gca, 'volatility_f', 'png')
+
+%%
+% *Plot Smoothing estimates*
+figure('name', 'SMC: Smoothing estimates')
+x_s_mean = summ_smc.x.s.mean;
+x_s_quant = summ_smc.x.s.quant;
+h = fill([1:t_max, t_max:-1:1], [x_s_quant{1}; flipud(x_s_quant{2})], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_red)
+hold on
+plot(1:t_max, x_s_mean, 'r', 'linewidth', 3)
+plot(1:t_max, data.x_true, 'g')
+ylim([-6.5, 1])
+xlabel('Time')
+ylabel('Log-volatility')
+legend({'95% credible interval', 'Smoothing mean estimate', 'True value'})
+legend boxoff
+box off
+saveas(gca, 'volatility_s', 'epsc2')
+saveas(gca, 'volatility_s', 'png')
+
+%%
+% *Marginal filtering and smoothing densities*
+figure('name', 'SMC: Marginal posteriors')
+kde_smc = biips_density(out_smc);
+time_index = [5, 10, 15];
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_smc.x.f(tk).x, kde_smc.x.f(tk).f);
+    hold on
+    plot(kde_smc.x.s(tk).x, kde_smc.x.s(tk).f, 'r');
+    plot(data.x_true(tk), 0, '*g');
+    xlim([-7,0])
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Posterior density');
+    title(['t=', num2str(tk)]);
+    box off
+end
+h =legend({'Filtering density', 'Smoothing density', 'True value'});
+set(h, 'position',[0.7, 0.25, .1, .1])
+legend boxoff
+saveas(gca, 'volatility_kde', 'epsc2')
+saveas(gca, 'volatility_kde', 'png')
+
+%% Biips Particle Independent Metropolis-Hastings
+%
+
+%%
+% *Parameters of the PIMH*
+n_burn = 2000;
+n_iter = 10000;
+thin = 1;
+n_part = 50;
+
+%%
+% *Run PIMH*
+obj_pimh = biips_pimh_init(model, variables);
+obj_pimh = biips_pimh_update(obj_pimh, n_burn, n_part); % burn-in iterations
+[obj_pimh, out_pimh, log_marg_like_pimh] = biips_pimh_samples(obj_pimh,...
+    n_iter, n_part, 'thin', thin);
+
+%%
+% *Some summary statistics*
+summ_pimh = biips_summary(out_pimh, 'probs', [.025, .975]);
+
+%%
+% *Posterior mean and quantiles*
+figure('name', 'PIMH: Posterior mean and quantiles')
+x_pimh_mean = summ_pimh.x.mean;
+x_pimh_quant = summ_pimh.x.quant;
+h = fill([1:t_max, t_max:-1:1], [x_pimh_quant{1}; flipud(x_pimh_quant{2})], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_red)
+hold on
+plot(1:t_max, x_pimh_mean, 'r', 'linewidth', 3)
+plot(1:t_max, data.x_true, 'g')
+ylim([-6.5, 1])
+xlabel('Time')
+ylabel('Log-volatility')
+legend({'95% credible interval', 'PIMH mean estimate', 'True value'})
+legend boxoff
+box off
+saveas(gca, 'volatility_pimh_s', 'epsc2')
+saveas(gca, 'volatility_pimh_s', 'png')
+
+%%
+% *Trace of MCMC samples*
+figure('name', 'PIMH: Trace samples')
+time_index = [5, 10, 15];
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(out_pimh.x(tk, :), 'linewidth', 1)
+    hold on
+    plot(0, data.x_true(tk), '*g');
+    xlabel('Iteration')
+    ylabel(['x_{', num2str(tk), '}'])
+    title(['t=', num2str(tk)]);
+    box off
+end
+h = legend({'PIMH samples', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1])
+legend boxoff
+
+%%
+% *Histograms of posteriors*
+figure('name', 'PIMH: Histograms marginal posteriors')
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    hist(out_pimh.x(tk, :), 20);
+    h = findobj(gca, 'Type', 'patch');
+    set(h, 'EdgeColor', 'w', 'FaceColor', 'r')
+    hold on
+    plot(data.x_true(tk), 0, '*g');
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Number of samples');
+    title(['t=', num2str(tk)]);
+    box off
+end
+h =legend({'PIMH samples', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1])
+legend boxoff
+
+%%
+% *Kernel density estimates of posteriors*
+figure('name', 'PIMH: KDE estimates marginal posteriors')
+kde_pimh = biips_density(out_pimh);
+for k=1:numel(time_index)
+    tk = time_index(k);
+    subplot(2, 2, k)
+    plot(kde_pimh.x(tk).x, kde_pimh.x(tk).f, 'r');
+    hold on
+    plot(data.x_true(tk), 0, '*g');
+    xlim([-7,0])
+    xlabel(['x_{', num2str(tk), '}']);
+    ylabel('Posterior density');
+    title(['t=', num2str(tk)]);
+    box off
+end
+h = legend({'Posterior density', 'True value'});
+set(h, 'position', [0.7, 0.25, .1, .1])
+legend boxoff
+saveas(gca, 'volatility_pimh_kde', 'epsc2')
+saveas(gca, 'volatility_pimh_kde', 'png')
+
+%% Biips Sensitivity analysis
+% We want to study sensitivity to the values of the parameter $\alpha$
+
+%%
+% *Parameters of the algorithm*
+n_part = 50; % Number of particles
+param_names = {'alpha'}; % Parameter for which we want to study sensitivity
+range = -5:.2:2; % Range of values for one component
+[A, B] = meshgrid(range, range); % Grid of values for two components
+param_values = {[A(:), B(:)]'};
+
+%%
+% *Run sensitivity analysis with SMC*
+out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+
+%%
+% *Plot log-marginal likelihood and penalized log-marginal likelihood*
+figure('name', 'Sensitivity: Log-likelihood')
+surf(A, B, reshape(out_sens.log_marg_like, size(A)))
+view(2); colormap(hot); shading interp
+caxis([-40, max(out_sens.log_marg_like(:))])
+colorbar box off
+box off
+xlim([-5, 2])
+xlabel('\alpha_1', 'fontsize', 20)
+ylabel('\alpha_2', 'fontsize', 20)
+saveas(gca, 'volatility_sensitivity', 'epsc2')
+saveas(gca, 'volatility_sensitivity', 'png')
+
+%% Clear model
+%
+biips_clear()
+
+##### SOURCE END #####
+--></body></html>

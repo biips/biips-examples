@@ -1,0 +1,538 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Matbiips example: Stochastic kinetic predator-prey model</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-24"><meta name="DC.source" content="stoch_kinetic.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Matbiips example: Stochastic kinetic predator-prey model</h1><!--introduction--><p>Reference: A. Golightly and D. J. Wilkinson. Bayesian parameter inference for stochastic biochemical network models using particle Markov chain Monte Carlo. Interface Focus, vol.1, pp. 807-820, 2011.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Statistical model</a></li><li><a href="#2">Statistical model in BUGS language</a></li><li><a href="#3">Installation of Matbiips</a></li><li><a href="#4">General settings</a></li><li><a href="#5">Load model and data</a></li><li><a href="#9">Biips Sensitivity analysis with Sequential Monte Carlo</a></li><li><a href="#13">Biips Particle Marginal Metropolis-Hastings</a></li><li><a href="#23">Clear model</a></li></ul></div><h2>Statistical model<a name="1"></a></h2><p>Let <img src="stoch_kinetic_eq26520.png" alt="$\delta_t=1/m$"> where <img src="stoch_kinetic_eq81831.png" alt="$m$"> is an integer, and <img src="stoch_kinetic_eq57315.png" alt="$T$"> a multiple of <img src="stoch_kinetic_eq81831.png" alt="$m$">. For <img src="stoch_kinetic_eq48194.png" alt="$t=1,\ldots,T$"> <img src="stoch_kinetic_eq77998.png" alt="$$ x_t|x_{t-1}\sim \mathcal N(x_{t-1}+\alpha(x_{t-1},c)\delta_t,\beta(x_{t-1},c)\delta_t) $$"></p><p>where <img src="stoch_kinetic_eq40491.png" alt="$$ \alpha(x,c) = \left(                   \begin{array}{c}                     c_1x_1-c_2x_1x_2 \\                     c_2x_1x_2-c_3x_2 \\                   \end{array}                 \right) $$"> and <img src="stoch_kinetic_eq73916.png" alt="$$ \beta(x,c) = \left(                   \begin{array}{cc}                     c_1x_1+c_2x_1x_2 &amp; -c_2x_1x_2 \\                     -c_2x_1x_2 &amp; c_2x_1x_2 + c_3x_2 \\                   \end{array}                 \right) $$"></p><p>For <img src="stoch_kinetic_eq35949.png" alt="$t=m,2m,3m,\ldots,T$">, <img src="stoch_kinetic_eq77140.png" alt="$$ y_t|x_t\sim \mathcal N(x_{1t},\sigma^2) $$"></p><p>and for <img src="stoch_kinetic_eq05866.png" alt="$i=1,\ldots,3$"></p><p><img src="stoch_kinetic_eq91685.png" alt="$$ \log(c_i)\sim Unif(-7,2) $$"></p><p><img src="stoch_kinetic_eq54937.png" alt="$x_{t1}$"> and <img src="stoch_kinetic_eq91495.png" alt="$x_{t2}$"> respectively correspond to the number of preys and predators and <img src="stoch_kinetic_eq13352.png" alt="$y_t$"> is the approximated number of preys. The model is the approximation of the Lotka-Volterra model.</p><h2>Statistical model in BUGS language<a name="2"></a></h2><pre class="codeinput">model_filename = <span class="string">'stoch_kinetic_cle.bug'</span>; <span class="comment">% BUGS model filename</span>
+type(model_filename);
+</pre><pre class="codeoutput">
+# Stochastic kinetic predator-prey model
+# with chemical Langevin equations
+#
+# Reference: A. Golightly and D. J. Wilkinson. Bayesian parameter inference
+# for stochastic biochemical network models using particle Markov chain
+# Monte Carlo. Interface Focus, vol.1, pp. 807-820, 2011.
+
+var x_true[2,t_max/dt], x_true_temp[2,t_max/dt],
+    x[2,t_max/dt], x_temp[2,t_max/dt], y[t_max/dt], 
+    beta[2,2,t_max/dt], beta_true[2,2,t_max/dt], 
+    logc[3], c[3], c_true[3]
+
+data
+{
+  x_true[,1] ~ dmnormvar(x_init_mean, x_init_var)
+  for (t in 2:t_max/dt)
+  {
+    alpha_true[1,t] &lt;- c_true[1]*x_true[1,t-1] - c_true[2]*x_true[1,t-1]*x_true[2,t-1]
+    alpha_true[2,t] &lt;- c_true[2]*x_true[1,t-1]*x_true[2,t-1] - c_true[3]*x_true[2,t-1]
+    beta_true[1,1,t] &lt;- c_true[1]*x_true[1,t-1] + c_true[2]*x_true[1,t-1]*x_true[2,t-1]
+    beta_true[1,2,t] &lt;- -c_true[2]*x_true[1,t-1]*x_true[2,t-1]
+    beta_true[2,1,t] &lt;- beta_true[1,2,t]
+    beta_true[2,2,t] &lt;- c_true[2]*x_true[1,t-1]*x_true[2,t-1] + c_true[3]*x_true[2,t-1]
+    x_true_temp[,t] ~ dmnormvar(x_true[,t-1]+alpha_true[,t]*dt, (beta_true[,,t])*dt)
+    # To avoid extinction
+    x_true[1,t] &lt;- max(x_true_temp[1,t],1)
+    x_true[2,t] &lt;- max(x_true_temp[2,t],1)
+  }
+  for (t in 1:t_max)
+  {
+    y[t/dt] ~ dnorm(x_true[1,t/dt], prec_y)
+  }
+}
+
+model
+{
+  logc[1] ~ dunif(-7,2)
+  logc[2] ~ dunif(-7,2)
+  logc[3] ~ dunif(-7,2)
+  c[1] &lt;- exp(logc[1])
+  c[2] &lt;- exp(logc[2])
+  c[3] &lt;- exp(logc[3])
+  x[,1] ~ dmnormvar(x_init_mean,  x_init_var)
+  for (t in 2:t_max/dt)
+  {
+    alpha[1,t] &lt;- c[1]*x[1,t-1] - c[2]*x[1,t-1]*x[2,t-1]
+    alpha[2,t] &lt;- c[2]*x[1,t-1]*x[2,t-1] - c[3]*x[2,t-1]
+    beta[1,1,t] &lt;- c[1]*x[1,t-1] + c[2]*x[1,t-1]*x[2,t-1]
+    beta[1,2,t] &lt;- -c[2]*x[1,t-1]*x[2,t-1]
+    beta[2,1,t] &lt;- beta[1,2,t]
+    beta[2,2,t] &lt;- c[2]*x[1,t-1]*x[2,t-1] + c[3]*x[2,t-1]
+    x_temp[,t] ~ dmnormvar(x[,t-1]+alpha[,t]*dt, beta[,,t]*dt)
+    # To avoid extinction
+    x[1,t] &lt;- max(x_temp[1,t],1)
+    x[2,t] &lt;- max(x_temp[2,t],1)
+  }
+  for (t in 1:t_max)
+  {
+    y[t/dt] ~ dnorm(x[1,t/dt], prec_y)
+  }
+}
+</pre><h2>Installation of Matbiips<a name="3"></a></h2><div><ol><li><a href="https://alea.bordeaux.inria.fr/biips/doku.php?id=download">Download</a> the latest version of Matbiips</li><li>Unzip the archive in some folder</li><li>Add the Matbiips folder to the Matlab search path</li></ol></div><pre class="codeinput">matbiips_path = <span class="string">'../../matbiips'</span>;
+addpath(matbiips_path)
+</pre><h2>General settings<a name="4"></a></h2><pre class="codeinput">set(0, <span class="string">'DefaultAxesFontsize'</span>, 14);
+set(0, <span class="string">'Defaultlinelinewidth'</span>, 2);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+dark_blue = [0, 0, .5];
+dark_red = [.5, 0, 0];
+
+<span class="comment">% Set the random numbers generator seed for reproducibility</span>
+<span class="keyword">if</span> isoctave() || verLessThan(<span class="string">'matlab'</span>, <span class="string">'7.12'</span>)
+    rand(<span class="string">'state'</span>, 0)
+<span class="keyword">else</span>
+    rng(<span class="string">'default'</span>)
+<span class="keyword">end</span>
+</pre><h2>Load model and data<a name="5"></a></h2><p><b>Model parameters</b></p><pre class="codeinput">t_max = 20;
+dt = .2;
+x_init_mean = [100; 100];
+x_init_var = 10*eye(2);
+c_true = [.5, .0025, .3];
+prec_y = 1/10;
+data = struct(<span class="string">'t_max'</span>, t_max, <span class="string">'dt'</span>, dt, <span class="string">'c_true'</span>, c_true,<span class="keyword">...</span>
+    <span class="string">'x_init_mean'</span>, x_init_mean, <span class="string">'x_init_var'</span>, x_init_var, <span class="string">'prec_y'</span>, prec_y);
+</pre><p><b>Compile BUGS model and sample data</b></p><pre class="codeinput">sample_data = true; <span class="comment">% Boolean</span>
+model = biips_model(model_filename, data, <span class="string">'sample_data'</span>, sample_data); <span class="comment">% Create Biips model and sample data</span>
+data = model.data;
+</pre><pre class="codeoutput">* Parsing model in: stoch_kinetic_cle.bug
+* Compiling data graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 1914
+  Sampling data
+  Reading data back into data table
+* Compiling model graph
+  Declaring variables
+  Resolving undeclared variables
+  Allocating nodes
+  Graph size: 2713
+</pre><p><b>Plot data</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Data'</span>)
+t_vec = dt:dt:t_max;
+plot(t_vec, data.x_true(1,:))
+hold <span class="string">on</span>
+plot(t_vec, data.x_true(2,:), <span class="string">'r'</span>)
+plot(t_vec, data.y, <span class="string">'g*'</span>)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Number of individuals'</span>)
+legend(<span class="string">'Prey'</span>, <span class="string">'Predator'</span>, <span class="string">'Measurements'</span>)
+box <span class="string">off</span>
+legend <span class="string">boxoff</span>
+</pre><img vspace="5" hspace="5" src="stoch_kinetic_01.png" alt=""> <h2>Biips Sensitivity analysis with Sequential Monte Carlo<a name="9"></a></h2><p><b>Parameters of the algorithm</b></p><pre class="codeinput">n_part = 100; <span class="comment">% Number of particles</span>
+param_names = {<span class="string">'logc[1]'</span>, <span class="string">'logc[2]'</span>, <span class="string">'logc[3]'</span>}; <span class="comment">% Parameter for which we want to study sensitivity</span>
+n_grid = 20;
+param_values = {linspace(-7,1,n_grid), repmat(log(c_true(2)), n_grid, 1), repmat(log(c_true(3)), n_grid, 1)}; <span class="comment">% Range of values</span>
+
+<span class="comment">% n_grid = 5;</span>
+<span class="comment">% [param_values{1:3}] = meshgrid(linspace(-7,1,n_grid), linspace(-7,1,n_grid), linspace(-7,1,n_grid));</span>
+<span class="comment">% param_values = cellfun(@(x) x(:), param_values, 'uniformoutput', false);</span>
+</pre><p><b>Run sensitivity analysis with SMC</b></p><pre class="codeinput">out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+</pre><pre class="codeoutput">* Analyzing sensitivity with 100 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 20 iterations in 3.88 s
+</pre><p><b>Plot penalized log-marginal likelihood</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'Sensitivity: Penalized log-marginal likelihood'</span>);
+plot(param_values{1}, out_sens.log_marg_like_pen, <span class="string">'.'</span>)
+xlabel(<span class="string">'log(c_1)'</span>)
+ylabel(<span class="string">'Penalized log-marginal likelihood'</span>)
+ylim([-15000, 0])
+box <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="stoch_kinetic_02.png" alt=""> <h2>Biips Particle Marginal Metropolis-Hastings<a name="13"></a></h2><p>We now use Biips to run a Particle Marginal Metropolis-Hastings in order to obtain posterior MCMC samples of the parameters and variables <img src="stoch_kinetic_eq43551.png" alt="$x$">.</p><p><b>Parameters of the PMMH</b></p><pre class="codeinput">n_burn = 2000; <span class="comment">% nb of burn-in/adaptation iterations</span>
+n_iter = 20000; <span class="comment">% nb of iterations after burn-in</span>
+thin = 10; <span class="comment">% thinning of MCMC outputs</span>
+n_part = 100; <span class="comment">% nb of particles for the SMC</span>
+
+param_names = {<span class="string">'logc[1]'</span>, <span class="string">'logc[2]'</span>, <span class="string">'logc[3]'</span>}; <span class="comment">% names of the variables updated with MCMC (others are updated with SMC)</span>
+latent_names = {<span class="string">'x'</span>}; <span class="comment">% names of the variables updated with SMC and that need to be monitored</span>
+</pre><p><b>Init PMMH</b></p><pre class="codeinput">obj_pmmh = biips_pmmh_init(model, param_names, <span class="string">'inits'</span>, {-1, -5, -1},<span class="keyword">...</span>
+    <span class="string">'latent_names'</span>, latent_names); <span class="comment">% creates a pmmh object</span>
+</pre><pre class="codeoutput">* Initializing PMMH
+</pre><p><b>Run PMMH</b></p><pre class="codeinput">obj_pmmh = biips_pmmh_update(obj_pmmh, n_burn, n_part); <span class="comment">% adaptation and burn-in iterations</span>
+[obj_pmmh, out_pmmh, log_marg_like_pen] = biips_pmmh_samples(obj_pmmh, n_iter, n_part,<span class="keyword">...</span>
+    <span class="string">'thin'</span>, thin); <span class="comment">% Samples</span>
+</pre><pre class="codeoutput">* Adapting PMMH with 100 particles
+  |--------------------------------------------------| 100%
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 2000 iterations in 293.14 s
+* Generating 2000 PMMH samples with 100 particles
+  |--------------------------------------------------| 100%
+  |**************************************************| 20000 iterations in 3455.99 s
+</pre><p><b>Some summary statistics</b></p><pre class="codeinput">summ_pmmh = biips_summary(out_pmmh, <span class="string">'probs'</span>, [.025, .975]);
+</pre><p><b>Compute kernel density estimates</b></p><pre class="codeinput">kde_pmmh = biips_density(out_pmmh);
+
+param_true = log(c_true);
+param_lab = {<span class="string">'log(c_1)'</span>, <span class="string">'log(c_2)'</span>, <span class="string">'log(c_3)'</span>};
+</pre><p><b>Posterior mean and credible interval of the parameters</b></p><pre class="codeinput"><span class="keyword">for</span> i=1:numel(param_names)
+    summ_param = getfield(summ_pmmh, param_names{i});
+    fprintf(<span class="string">'Posterior mean of %s: %.3f\n'</span>, param_names{i}, summ_param.mean);
+    fprintf(<span class="string">'95%% credibile interval of %s: [%.1f, %.1f]\n'</span>,<span class="keyword">...</span>
+        param_names{i}, summ_param.quant{1}, summ_param.quant{2});
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Posterior mean of logc[1]: -0.561
+95% credibile interval of logc[1]: [-0.7, -0.4]
+Posterior mean of logc[2]: -6.174
+95% credibile interval of logc[2]: [-6.3, -6.0]
+Posterior mean of logc[3]: -1.512
+95% credibile interval of logc[3]: [-1.9, -1.2]
+</pre><p><b>Trace of MCMC samples for the parameters</b></p><pre class="codeinput"><span class="keyword">for</span> i=1:numel(param_names)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: Trace samples parameter'</span>)
+    samples_param = getfield(out_pmmh, param_names{i});
+    plot(samples_param, <span class="string">'linewidth'</span>, 1);
+    hold <span class="string">on</span>
+    plot(0, param_true(i), <span class="string">'*g'</span>);
+    xlabel(<span class="string">'Iteration'</span>)
+    ylabel(param_lab{i})
+    title(param_lab{i})
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="stoch_kinetic_03.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_04.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_05.png" alt=""> <p><b>Histogram and KDE estimate of the posterior for the parameters</b></p><pre class="codeinput"><span class="keyword">for</span> i=1:numel(param_names)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: Histogram posterior parameter'</span>)
+    samples_param = getfield(out_pmmh, param_names{i});
+    hist(samples_param, 15)
+    h = findobj(gca, <span class="string">'Type'</span>, <span class="string">'patch'</span>);
+    set(h, <span class="string">'EdgeColor'</span>, <span class="string">'w'</span>)
+    hold <span class="string">on</span>
+    plot(param_true(i), 0, <span class="string">'*g'</span>);
+    xlabel(param_lab{i})
+    ylabel(<span class="string">'Number of samples'</span>)
+    title(param_lab{i})
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i=1:numel(param_names)
+    figure(<span class="string">'name'</span>, <span class="string">'PMMH: KDE estimate posterior parameter'</span>)
+    kde_param = getfield(kde_pmmh, param_names{i});
+    plot(kde_param.x, kde_param.f);
+    hold <span class="string">on</span>
+    plot(param_true(i), 0, <span class="string">'*g'</span>);
+    xlabel(param_lab{i});
+    ylabel(<span class="string">'Posterior density'</span>);
+    title(param_lab{i})
+    box <span class="string">off</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="stoch_kinetic_06.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_07.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_08.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_09.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_10.png" alt=""> <img vspace="5" hspace="5" src="stoch_kinetic_11.png" alt=""> <p><b>Posterior mean and quantiles for x</b></p><pre class="codeinput">figure(<span class="string">'name'</span>, <span class="string">'PMMH: Posterior mean and quantiles'</span>)
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([t_vec, fliplr(t_vec)], [x_pmmh_quant{1}(1,:), fliplr(x_pmmh_quant{2}(1,:))], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_blue)
+hold <span class="string">on</span>
+plot(t_vec, x_pmmh_mean(1, :), <span class="string">'linewidth'</span>, 3)
+plot(t_vec, data.x_true(1,:), <span class="string">'--'</span>, <span class="string">'color'</span>, dark_blue)
+h = fill([t_vec, fliplr(t_vec)], [x_pmmh_quant{1}(2,:), fliplr(x_pmmh_quant{2}(2,:))], 0);
+set(h, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>, <span class="string">'facecolor'</span>, light_red)
+plot(t_vec, x_pmmh_mean(2, :), <span class="string">'r'</span>, <span class="string">'linewidth'</span>, 3)
+plot(t_vec, data.x_true(2,:), <span class="string">'--'</span>, <span class="string">'color'</span>, dark_red)
+xlabel(<span class="string">'Time'</span>)
+ylabel(<span class="string">'Number of individuals'</span>)
+ylim([0, 1500])
+legend({<span class="string">'95% credible interval (prey)'</span>, <span class="string">'PMMH mean estimate (prey)'</span>, <span class="string">'True number of preys'</span>,<span class="keyword">...</span>
+    <span class="string">'95% credible interval (predator)'</span>, <span class="string">'PMMH mean estimate (predator)'</span>,<span class="keyword">...</span>
+    <span class="string">'True number of predators'</span>})
+legend <span class="string">boxoff</span>
+box <span class="string">off</span>
+saveas(gca, <span class="string">'stoch_kinetic_x'</span>, <span class="string">'epsc2'</span>)
+saveas(gca, <span class="string">'stoch_kinetic_x'</span>, <span class="string">'png'</span>)
+</pre><img vspace="5" hspace="5" src="stoch_kinetic_12.png" alt=""> <h2>Clear model<a name="23"></a></h2><pre class="codeinput">biips_clear(model)
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Matbiips example: Stochastic kinetic predator-prey model
+%
+% Reference: A. Golightly and D. J. Wilkinson. Bayesian parameter inference
+% for stochastic biochemical network models using particle Markov chain
+% Monte Carlo. Interface Focus, vol.1, pp. 807-820, 2011.
+
+%% Statistical model
+%
+% Let $\delta_t=1/m$ where $m$ is an integer, and $T$ a multiple of $m$.
+% For $t=1,\ldots,T$
+% $$ x_t|x_{t-1}\sim \mathcal N(x_{t-1}+\alpha(x_{t-1},c)\delta_t,\beta(x_{t-1},c)\delta_t) $$
+%
+% where $$ \alpha(x,c) = \left(
+%                   \begin{array}{c}
+%                     c_1x_1-c_2x_1x_2 \\
+%                     c_2x_1x_2-c_3x_2 \\
+%                   \end{array}
+%                 \right) $$
+% and $$ \beta(x,c) = \left(
+%                   \begin{array}{cc}
+%                     c_1x_1+c_2x_1x_2 & -c_2x_1x_2 \\
+%                     -c_2x_1x_2 & c_2x_1x_2 + c_3x_2 \\
+%                   \end{array}
+%                 \right) $$
+%
+% For $t=m,2m,3m,\ldots,T$,
+% $$ y_t|x_t\sim \mathcal N(x_{1t},\sigma^2) $$
+%
+% and for $i=1,\ldots,3$
+%
+% $$ \log(c_i)\sim Unif(-7,2) $$
+%
+% $x_{t1}$ and $x_{t2}$ respectively correspond to the number of preys and predators and $y_t$ is the approximated number of preys. The model is the approximation of the Lotka-Volterra model.
+
+%% Statistical model in BUGS language
+%
+model_filename = 'stoch_kinetic_cle.bug'; % BUGS model filename
+type(model_filename);
+
+%% Installation of Matbiips
+% # <https://alea.bordeaux.inria.fr/biips/doku.php?id=download Download> the latest version of Matbiips
+% # Unzip the archive in some folder
+% # Add the Matbiips folder to the Matlab search path
+matbiips_path = '../../matbiips';
+addpath(matbiips_path)
+
+%% General settings
+%
+set(0, 'DefaultAxesFontsize', 14);
+set(0, 'Defaultlinelinewidth', 2);
+light_blue = [.7, .7, 1];
+light_red = [1, .7, .7];
+dark_blue = [0, 0, .5];
+dark_red = [.5, 0, 0];
+
+% Set the random numbers generator seed for reproducibility
+if isoctave() || verLessThan('matlab', '7.12')
+    rand('state', 0)
+else
+    rng('default')
+end
+
+%% Load model and data
+%
+
+%%
+% *Model parameters*
+t_max = 20;
+dt = .2;
+x_init_mean = [100; 100];
+x_init_var = 10*eye(2);
+c_true = [.5, .0025, .3];
+prec_y = 1/10;
+data = struct('t_max', t_max, 'dt', dt, 'c_true', c_true,...
+    'x_init_mean', x_init_mean, 'x_init_var', x_init_var, 'prec_y', prec_y);
+
+%%
+% *Compile BUGS model and sample data*
+sample_data = true; % Boolean
+model = biips_model(model_filename, data, 'sample_data', sample_data); % Create Biips model and sample data
+data = model.data;
+
+%%
+% *Plot data*
+figure('name', 'Data')
+t_vec = dt:dt:t_max;
+plot(t_vec, data.x_true(1,:))
+hold on
+plot(t_vec, data.x_true(2,:), 'r')
+plot(t_vec, data.y, 'g*')
+xlabel('Time')
+ylabel('Number of individuals')
+legend('Prey', 'Predator', 'Measurements')
+box off
+legend boxoff
+
+%% Biips Sensitivity analysis with Sequential Monte Carlo
+%
+
+%%
+% *Parameters of the algorithm*
+n_part = 100; % Number of particles
+param_names = {'logc[1]', 'logc[2]', 'logc[3]'}; % Parameter for which we want to study sensitivity
+n_grid = 20;
+param_values = {linspace(-7,1,n_grid), repmat(log(c_true(2)), n_grid, 1), repmat(log(c_true(3)), n_grid, 1)}; % Range of values
+
+% n_grid = 5;
+% [param_values{1:3}] = meshgrid(linspace(-7,1,n_grid), linspace(-7,1,n_grid), linspace(-7,1,n_grid));
+% param_values = cellfun(@(x) x(:), param_values, 'uniformoutput', false);
+
+%%
+% *Run sensitivity analysis with SMC*
+out_sens = biips_smc_sensitivity(model, param_names, param_values, n_part);
+
+%%
+% *Plot penalized log-marginal likelihood*
+figure('name', 'Sensitivity: Penalized log-marginal likelihood');
+plot(param_values{1}, out_sens.log_marg_like_pen, '.')
+xlabel('log(c_1)')
+ylabel('Penalized log-marginal likelihood')
+ylim([-15000, 0])
+box off
+
+%% Biips Particle Marginal Metropolis-Hastings
+% We now use Biips to run a Particle Marginal Metropolis-Hastings in order
+% to obtain posterior MCMC samples of the parameters and variables $x$.
+
+%%
+% *Parameters of the PMMH*
+n_burn = 2000; % nb of burn-in/adaptation iterations
+n_iter = 20000; % nb of iterations after burn-in
+thin = 10; % thinning of MCMC outputs
+n_part = 100; % nb of particles for the SMC
+
+param_names = {'logc[1]', 'logc[2]', 'logc[3]'}; % names of the variables updated with MCMC (others are updated with SMC)
+latent_names = {'x'}; % names of the variables updated with SMC and that need to be monitored
+
+%%
+% *Init PMMH*
+obj_pmmh = biips_pmmh_init(model, param_names, 'inits', {-1, -5, -1},...
+    'latent_names', latent_names); % creates a pmmh object
+
+%%
+% *Run PMMH*
+obj_pmmh = biips_pmmh_update(obj_pmmh, n_burn, n_part); % adaptation and burn-in iterations
+[obj_pmmh, out_pmmh, log_marg_like_pen] = biips_pmmh_samples(obj_pmmh, n_iter, n_part,...
+    'thin', thin); % Samples
+
+%%
+% *Some summary statistics*
+summ_pmmh = biips_summary(out_pmmh, 'probs', [.025, .975]);
+
+%%
+% *Compute kernel density estimates*
+kde_pmmh = biips_density(out_pmmh);
+
+param_true = log(c_true);
+param_lab = {'log(c_1)', 'log(c_2)', 'log(c_3)'};
+
+%%
+% *Posterior mean and credible interval of the parameters*
+for i=1:numel(param_names)
+    summ_param = getfield(summ_pmmh, param_names{i});
+    fprintf('Posterior mean of %s: %.3f\n', param_names{i}, summ_param.mean);
+    fprintf('95%% credibile interval of %s: [%.1f, %.1f]\n',...
+        param_names{i}, summ_param.quant{1}, summ_param.quant{2});
+end
+
+%%
+% *Trace of MCMC samples for the parameters*
+for i=1:numel(param_names)
+    figure('name', 'PMMH: Trace samples parameter')
+    samples_param = getfield(out_pmmh, param_names{i});
+    plot(samples_param, 'linewidth', 1);
+    hold on
+    plot(0, param_true(i), '*g');
+    xlabel('Iteration')
+    ylabel(param_lab{i})
+    title(param_lab{i})
+    box off
+end
+
+%%
+% *Histogram and KDE estimate of the posterior for the parameters*
+for i=1:numel(param_names)
+    figure('name', 'PMMH: Histogram posterior parameter')
+    samples_param = getfield(out_pmmh, param_names{i});
+    hist(samples_param, 15)
+    h = findobj(gca, 'Type', 'patch');
+    set(h, 'EdgeColor', 'w')
+    hold on
+    plot(param_true(i), 0, '*g');
+    xlabel(param_lab{i})
+    ylabel('Number of samples')
+    title(param_lab{i})
+    box off
+end
+
+for i=1:numel(param_names)
+    figure('name', 'PMMH: KDE estimate posterior parameter')
+    kde_param = getfield(kde_pmmh, param_names{i});
+    plot(kde_param.x, kde_param.f);
+    hold on
+    plot(param_true(i), 0, '*g');
+    xlabel(param_lab{i});
+    ylabel('Posterior density');
+    title(param_lab{i})
+    box off
+end
+
+%%
+% *Posterior mean and quantiles for x*
+figure('name', 'PMMH: Posterior mean and quantiles')
+x_pmmh_mean = summ_pmmh.x.mean;
+x_pmmh_quant = summ_pmmh.x.quant;
+h = fill([t_vec, fliplr(t_vec)], [x_pmmh_quant{1}(1,:), fliplr(x_pmmh_quant{2}(1,:))], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_blue)
+hold on
+plot(t_vec, x_pmmh_mean(1, :), 'linewidth', 3)
+plot(t_vec, data.x_true(1,:), 'REPLACE_WITH_DASH_DASH', 'color', dark_blue)
+h = fill([t_vec, fliplr(t_vec)], [x_pmmh_quant{1}(2,:), fliplr(x_pmmh_quant{2}(2,:))], 0);
+set(h, 'edgecolor', 'none', 'facecolor', light_red)
+plot(t_vec, x_pmmh_mean(2, :), 'r', 'linewidth', 3)
+plot(t_vec, data.x_true(2,:), 'REPLACE_WITH_DASH_DASH', 'color', dark_red)
+xlabel('Time')
+ylabel('Number of individuals')
+ylim([0, 1500])
+legend({'95% credible interval (prey)', 'PMMH mean estimate (prey)', 'True number of preys',...
+    '95% credible interval (predator)', 'PMMH mean estimate (predator)',...
+    'True number of predators'})
+legend boxoff
+box off
+saveas(gca, 'stoch_kinetic_x', 'epsc2')
+saveas(gca, 'stoch_kinetic_x', 'png')
+
+%% Clear model
+%
+biips_clear(model)
+
+##### SOURCE END #####
+--></body></html>

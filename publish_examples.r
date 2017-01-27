@@ -18,15 +18,14 @@ example_scripts$stoch_volatility = c("stoch_volatility",
 for (ex_dir in names(example_scripts)) {
   # set example output directory
   out_dir = file.path(output_dir, ex_dir)
-  dir.create(out_dir, showWarnings=FALSE)
+  dir.create(out_dir, recursive = TRUE, showWarnings=FALSE)
   # loop over all scripts in example directory
   for (ex_script in example_scripts[[ex_dir]]) {
     # change directory
     setwd(file.path(root_dir, ex_dir))
     # clear cache
-    if (clear_cache) {
+    if (clear_cache)
       unlink(paste0(ex_script, "_cache"), recursive=TRUE)
-    }
     # render html
     input = paste0(ex_script, ".r")
     rmarkdown::render(input,

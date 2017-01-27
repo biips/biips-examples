@@ -14,7 +14,7 @@ Three additional, realistic applications are then provided:
 * `stoch_volatility`: (Switching) Stochastic volatility
     - `stoch_volatility`: Stochastic volatility model
     - `switch_stoch_volatility`: Switching Stochastic volatility model
-    - `switch_stoch_volatility_param`: Switching Stochastic volatility with parameter estimation
+    - `switch_stoch_volatility_param`: Switching Stochastic volatility model with parameter estimation
 * `stoch_kinetic`: Stochastic kinetic
     - `stoch_kinetic`: Stochastic kinetic prey-predator model
     - `stoch_kinetic_gill`: Stochastic kinetic prey-predator model with Gillespie algorithm

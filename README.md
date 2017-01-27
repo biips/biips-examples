@@ -5,8 +5,8 @@ This repository contains several illustrations of the use of Biips software via 
 First, in order to familiarize with the software, we provide a tutorial in three parts:
 
 * `tutorial`: Inference on a standard univariate nonlinear non-Gaussian state-space model (aka hidden Markov model).
-    - `tutorial1`: Sequential Monte Carlo, Particle Independent Metropolis Hastings
-    - `tutorial2`: Sensitivity analysis with SMC, Particle Marginal Metropolis-Hastings
+    - `tutorial1`: Sequential Monte Carlo (SMC), Particle Independent Metropolis Hastings (PIMH)
+    - `tutorial2`: Sensitivity analysis with SMC, Particle Marginal Metropolis-Hastings (PMMH)
     - `tutorial3`: Adding a user-defined function
 
 Three additional, realistic applications are then provided:

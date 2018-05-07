@@ -1,10 +1,8 @@
-function [] = publishmatbiipsexamples(varargin)
+function [] = publish_examples(varargin)
 % Create html files for matbiips examples, and matlab zip files
-% Last update: 26/08/2014
+% Last update: 18/02/2017
 
-outdir = 'D:/caron/Dropbox/biips/website/examples/';
-% outdir = '/home/adrien-alea/Dropbox/Biips/biips-share/website/examples/';
-% outdir = 'C:/Users/adrien/Dropbox/Biips/biips-share/website/examples/';
+outdir = 'docs';
 if nargin>=1
     outdir = varargin{1};
 end
@@ -19,13 +17,13 @@ if nargin>=3
     options = varargin{3};
 end
 
-name_folders = {...
+folders = {...
     'tutorial',...
     'object_tracking',...
     'stoch_kinetic',...
     'stoch_volatility'...
     };
-names_mfiles = {...
+mfiles = {...
     {'tutorial1', 'tutorial2', 'tutorial3'},...
     {'hmm_4d_nonlin'},...
     {'stoch_kinetic_gill', 'stoch_kinetic'},...
@@ -33,18 +31,20 @@ names_mfiles = {...
     };
 
 fprintf('========================================================\n')
-for i=ind_folders
-    mdir = fullfile('.', name_folders{i});
+
+d = dir(outdir);
+outdir = d(1).folder; % absolute path
+curdir = pwd;
+for i = ind_folders
+    mdir = fullfile(curdir, folders{i});
     cd(mdir);
-    options.outputDir = fullfile(outdir, name_folders{i}, 'matbiips');
-    files_i = names_mfiles{i};
-    for j=1:length(files_i)
+    options.outputDir = fullfile(outdir, 'matbiips', folders{i});
+    files_i = mfiles{i};
+    for j = 1:length(files_i)
         % Publish html file
         fprintf('Publishing matbiips example: %s\n', files_i{j})
         publish([files_i{j} '.m'], options);
         close all
         fprintf('------------------------------------------------\n')         
     end
-    
-    cd('../')    
 end

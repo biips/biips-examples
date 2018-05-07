@@ -1,4 +1,4 @@
-require(rmarkdown)
+library(rmarkdown)
 
 root_dir = getwd()
 

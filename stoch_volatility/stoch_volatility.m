@@ -211,7 +211,7 @@ x_pmmh_quant = summ_pmmh.x.quant;
 h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
 set(h, 'edgecolor', 'none', 'facecolor', light_blue)
 hold on
-plot(1:t_max, x_pmmh_mean, 'linewidth', 3)
+plot(1:t_max, x_pmmh_mean, 'b', 'linewidth', 3)
 if sample_data
     plot(1:t_max, data.x_true, 'g')
     legend({'95% credible interval', 'PMMH mean estimate', 'True value'})

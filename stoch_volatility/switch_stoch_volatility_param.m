@@ -294,7 +294,7 @@ plot(1:t_max, prob_c2, 'r')
 xlabel('Time')
 ylabel('Posterior probability')
 legend({'True c_t=2 intervals', 'PMMH estimate of Pr(c_t=2)'},...
-    'Location', 'NorthWest', 'EdgeColor', light_gray)
+    'Location', 'northoutside', 'EdgeColor', light_gray)
 saveas(gca, 'switch_stoch_param_c', 'epsc2')
 saveas(gca, 'switch_stoch_param_c', 'png')
 

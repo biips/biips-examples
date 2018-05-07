@@ -115,6 +115,7 @@ for t=1:t_max
     scatter(t*ones(size(val)), val, min(50, .5*n_part*weight), 'r',...
         'markerfacecolor', 'r')
 end
+plot(1:t_max, data.x_true, 'g')
 xlabel('Time')
 ylabel('Log-volatility')
 saveas(gca, 'volatility_particles_s', 'epsc2')
@@ -132,7 +133,7 @@ x_f_quant = summ_smc.x.f.quant;
 h = fill([1:t_max, t_max:-1:1], [x_f_quant{1}; flipud(x_f_quant{2})], 0);
 set(h, 'edgecolor', 'none', 'facecolor', light_blue)
 hold on
-plot(1:t_max, x_f_mean, 'linewidth', 3)
+plot(1:t_max, x_f_mean, 'b', 'linewidth', 3)
 plot(1:t_max, data.x_true, 'g')
 ylim([-6.5, 1])
 xlabel('Time')

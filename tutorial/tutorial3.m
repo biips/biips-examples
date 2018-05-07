@@ -31,12 +31,12 @@ type(model_file);
 % The BUGS model calls a function |fext|. In order to be able to use this
 % function, one needs to create two functions in Matlab. The first
 % function, called here |'f_eval.m'| provides the evaluation of the function.
-type('f_eval.m')
+type('f_eval.m');
 
 %%
 % The second function, |'f_dim.m'|, provides the dimensions of the output of |f_eval|,
 % possibly depending on the dimensions of the inputs.
-type('f_dim.m')
+type('f_dim.m');
 
 %% Installation of matbiips
 % # <https://alea.bordeaux.inria.fr/biips/doku.php?id=download Download> the latest version of matbiips
@@ -117,7 +117,7 @@ x_f_quant = summ_smc.x.f.quant;
 h = fill([1:t_max, t_max:-1:1], [x_f_quant{1}; flipud(x_f_quant{2})], 0);
 set(h, 'edgecolor', 'none', 'facecolor', light_blue)
 hold on
-plot(1:t_max, x_f_mean, 'linewidth', 3)
+plot(1:t_max, x_f_mean, 'b', 'linewidth', 3)
 plot(1:t_max, data.x_true, 'g')
 xlabel('Time')
 ylabel('x')

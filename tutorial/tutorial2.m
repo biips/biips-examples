@@ -192,7 +192,7 @@ x_pmmh_quant = summ_pmmh.x.quant;
 h = fill([1:t_max, t_max:-1:1], [x_pmmh_quant{1}; flipud(x_pmmh_quant{2})], 0);
 set(h, 'edgecolor', 'none', 'facecolor', light_blue)
 hold on
-plot(1:t_max, x_pmmh_mean, 'linewidth', 3)
+plot(1:t_max, x_pmmh_mean, 'b', 'linewidth', 3)
 plot(1:t_max, data.x_true, 'g')
 xlabel('Time')
 ylabel('x')
@@ -222,16 +222,17 @@ legend boxoff
 %%
 % *Histogram and kernel density estimate of posteriors of x*
 figure('name', 'PMMH: Histograms marginal posteriors')
+xbins = min(min(out_pmmh.x(time_index, :))):0.5:max(max(out_pmmh.x(time_index, :)));
 for k=1:numel(time_index)
     tk = time_index(k);
     subplot(2, 2, k)
-    hist(out_pmmh.x(tk, :), -16:.3:-7);
+    hist(out_pmmh.x(tk, :), xbins);
     h = findobj(gca, 'Type', 'patch');
     set(h, 'EdgeColor', 'w')
     hold on
     plot(data.x_true(tk), 0, '*g');
     xlabel(['x_{', num2str(tk), '}']);
-    ylabel('Number of samples');
+    ylabel('Nb of samples');
     title(['t=', num2str(tk)]);
     box off
 end
@@ -246,6 +247,7 @@ for k=1:numel(time_index)
     plot(kde_pmmh.x(tk).x, kde_pmmh.x(tk).f);
     hold on
     plot(data.x_true(tk), 0, '*g');
+    xlim([xbins(1) xbins(end)])
     xlabel(['x_{', num2str(tk), '}']);
     ylabel('Posterior density');
     title(['t=', num2str(tk)]);

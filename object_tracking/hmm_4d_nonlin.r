@@ -54,7 +54,7 @@ light_blue = rgb(.7, .7, 1)
 light_red = rgb(1, .7, .7)
 
 #' Set the random numbers generator seed for reproducibility
-set.seed(5)
+set.seed(1)
 
 #' # Load model and data
 
@@ -100,10 +100,15 @@ diag_smc = biips_diagnosis(out_smc)
 
 #' #### Plot particles
 #+ fig.cap = 'SMC: Particles (filtering)'
-matplot(out_smc$x$f$values[1,,], out_smc$x$f$values[2,,],
-        type='p', col='red', pch=16, cex=.2,
-        xlab='Position X', ylab='Position Y')
-lines(x_pos_true[1,], x_pos_true[2,], type='l', col='green', lwd=2, lty=2)
+xmin = min(c(out_smc$x$f$values[1,,], x_pos_true[1,], x_pos[1]))
+xmax = max(c(out_smc$x$f$values[1,,], x_pos_true[1,], x_pos[1]))
+ymin = min(c(out_smc$x$f$values[2,,], x_pos_true[2,], x_pos[2]))
+ymax = max(c(out_smc$x$f$values[2,,], x_pos_true[2,], x_pos[2]))
+plot(c(xmin, xmax), c(ymin, ymax), type='n',
+     xlab='Position X', ylab='Position Y')
+matpoints(out_smc$x$f$values[1,,], out_smc$x$f$values[2,,],
+          col='red', pch=16, cex=out_smc$x$f$weights[1,,])
+lines(x_pos_true[1,], x_pos_true[2,], col='green', lwd=2, lty=2)
 points(x_pos[1], x_pos[2], col='black', pch=0, lwd=2)
 legend('bottomleft', leg=c('Particles (filtering)', 'True trajectory',
                            'Position of the radar'),
@@ -119,10 +124,15 @@ summ_smc = biips_summary(out_smc, probs=c(.025, .975))
 x_f_mean = summ_smc$x$f$mean
 x_s_mean = summ_smc$x$s$mean
 
-plot(x_f_mean[1,], x_f_mean[2,], type='l', col='blue', lwd=2,
+xmin = min(c(x_f_mean[1,], x_s_mean[1,], x_pos_true[1,], x_pos[1]))
+xmax = max(c(x_f_mean[1,], x_s_mean[1,], x_pos_true[1,], x_pos[1]))
+ymin = min(c(x_f_mean[2,], x_s_mean[2,], x_pos_true[2,], x_pos[2]))
+ymax = max(c(x_f_mean[2,], x_s_mean[2,], x_pos_true[2,], x_pos[2]))
+plot(c(xmin, xmax), c(ymin, ymax), type='n',
      xlab='Position X', ylab='Position Y')
-lines(x_s_mean[1,], x_s_mean[2,], type='l', col='red', lwd=2, lty=4)
-lines(x_pos_true[1,], x_pos_true[2,], type='l', col='green', lwd=2, lty=2)
+lines(x_f_mean[1,], x_f_mean[2,], col='blue', lwd=2)
+lines(x_s_mean[1,], x_s_mean[2,], col='red', lwd=2, lty=4)
+lines(x_pos_true[1,], x_pos_true[2,], col='green', lwd=2, lty=2)
 points(x_pos[1], x_pos[2], col='black', pch=0, lwd=2)
 legend('bottomleft', leg=c('Filtering estimate', 'Smoothing estimate',
                         'True trajectory', 'Position of the radar'),
